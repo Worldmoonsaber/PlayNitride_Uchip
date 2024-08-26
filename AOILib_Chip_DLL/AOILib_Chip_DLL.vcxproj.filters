@@ -30,6 +30,9 @@
     <ClInclude Include="resource.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="..\MTchip_V1\MTchip_lib_V1.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -39,6 +42,15 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="Source.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTchip_V1\GeneralOperation.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV1_.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV2.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
