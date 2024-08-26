@@ -3,6 +3,7 @@
 
 int main()
 {
+	//--- Debug ด๚ธี
 	SettingP_ chipsetting;
 	thresP_ thresParm;
 	ImgP_ imageParm;
