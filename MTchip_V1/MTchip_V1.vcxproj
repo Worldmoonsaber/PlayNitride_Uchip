@@ -139,6 +139,7 @@
     <ClCompile Include="MT_ChipfunctionV1_.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InputOperation.h" />
     <ClInclude Include="MTchip_lib_V1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
