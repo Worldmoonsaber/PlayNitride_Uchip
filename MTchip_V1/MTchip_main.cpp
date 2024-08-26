@@ -3,10 +3,10 @@
 
 int main()
 {
-	SettingP chipsetting;
-	thresP thresParm;
-	ImgP imageParm;
-	sizeTD target;
+	SettingP_ chipsetting;
+	thresP_ thresParm;
+	ImgP_ imageParm;
+	sizeTD_ target;
 
 
 
@@ -37,39 +37,41 @@ int main()
 	int boolflag = 0;//11
 
 	//operating mode
-	
+	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
+	rawimg = imread("C:\\Image\\Uchip\\MT1\\240522_MT1Ukey_MT1Uchip1836\\240522_MT1Ukey_MT1Uchip1836\\chip\\24052203.bmp");
+
 		// Image source input: IMG format:RGB
-		try
-		{
-			std::tie(picorder, rawimg) = Inputfunction();
-			if (rawimg.empty())
-			{
-				boolflag = 8;
-				throw "something wrong::input image failure";
-			} //check if image is empty
+		//try
+		//{
+		//	std::tie(picorder, rawimg) = Inputfunction();
+		//	if (rawimg.empty())
+		//	{
+		//		boolflag = 8;
+		//		throw "something wrong::input image failure";
+		//	} //check if image is empty
 
-		} //try loop
-		catch (const char* message)
-		{
+		//} //try loop
+		//catch (const char* message)
+		//{
 
-			std::cout << "check catch state:: " << boolflag << endl;
+		//	std::cout << "check catch state:: " << boolflag << endl;
 
 
-		}//catch loop
+		//}//catch loop
 
 		/////
-		vector<float> sizelist;
-		vector<int>threslist;
+		//vector<float> sizelist;
+		//vector<int>threslist;
 
-		std::tie(sizelist, threslist) = dict_rectregion(picorder);
+		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = sizelist[0];
-		target.TDmaxW = sizelist[1];
-		target.TDminW = sizelist[2];
+		target.TDwidth = 300;
+		target.TDmaxW = 1.2;
+		target.TDminW = 0.8;
 
-		target.TDheight = sizelist[3];
-		target.TDmaxH = sizelist[4];
-		target.TDminH = sizelist[5];
+		target.TDheight = 150;
+		target.TDmaxH = 1.3;
+		target.TDminH = 0.7;
 
 		//thresParm = { 4,{200,107,107},{99999,99999,99999} ,{1,9,9}, {99999,99999,99999} }; //MTchip-G¡BB[0]
 		//thresParm = { 3,{280,107,107},{99999,99999,99999} ,{9,9,9}, {99999,99999,99999} };//MTchip-R[0]

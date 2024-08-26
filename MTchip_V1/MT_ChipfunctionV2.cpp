@@ -1,7 +1,7 @@
 #include "MTchip_lib_V1.h"
 
 
-std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP thresParm, SettingP chipsetting, sizeTD target, Point2f creteriaPoint, Point IMGoffset, ImgP imageParm)
+std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm)
 {
 	auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -77,7 +77,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
 		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
 	}
-
 	else if (thresParm.thresmode == 4)
 	{
 		if (thresParm.bgmax[imageParm.PICmode] & 1)

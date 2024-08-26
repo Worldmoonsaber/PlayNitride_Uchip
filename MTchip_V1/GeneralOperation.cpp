@@ -91,7 +91,7 @@ int findBoundary(Mat creteriaIMG, Rect inirect, char direction)
 	return BoundaryVal;
 }
 
-std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD target, Point TDcenter)
+std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD_ target, Point TDcenter)
 {
 	//output:::
 	Rect innerboundary;
