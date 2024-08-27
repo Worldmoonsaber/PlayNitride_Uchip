@@ -129,6 +129,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opencv_world460.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>1000000000</StackReserveSize>
+      <StackCommitSize>1000000000</StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -137,10 +139,13 @@
     <ClCompile Include="MTchip_main.cpp" />
     <ClCompile Include="MT_ChipfunctionV2.cpp" />
     <ClCompile Include="MT_ChipfunctionV1_.cpp" />
+    <ClCompile Include="OpenCV_Extension_Tool.cpp" />
+    <ClCompile Include="PairChip_Finder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputOperation.h" />
     <ClInclude Include="MTchip_lib_V1.h" />
+    <ClInclude Include="OpenCV_Extension_Tool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

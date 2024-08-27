@@ -14,7 +14,6 @@
 void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, sizeTD target, unsigned int* imageIN,
 					unsigned int* imageOUT, unsigned char* imageGray, float boolResult[], float outputLEDX[], float outputLEDY[])
 {
-
 	
 	Mat rawimg, cropedRImg, gauBGR;
 	Mat Gimg, drawF2;
@@ -22,9 +21,6 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	Point piccenter;
 	Point2f creteriaPoint;
 	Point IMGoffset=Point(0,0);
-
-	
-	
 
 	//output parameters::
 	Point crossCenter;
@@ -131,19 +127,25 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		creteriaPoint = find_piccenter(cropedRImg);
 
 
-		//start to ISP//////////////////////////
-		if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
+		if (imageParm.PICmode == 0)
 		{
-			
-			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_dualphase(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
+			//start to ISP//////////////////////////
+			if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
+			{
 
+				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_dualphase(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
+
+			}
+
+			else
+			{
+				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
+			}
 		}
-
 		else
 		{
-			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-		}
 
+		}
 		
 		
 	}

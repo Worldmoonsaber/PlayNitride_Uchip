@@ -59,26 +59,13 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
 		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
 	}
-	else if (thresParm.thresmode == 3)
+	else// thresParm.thresmode==3 & 4
 	{
-		if (thresParm.bgmax[imageParm.PICmode] & 1)
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode];
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		else
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+		int nThresholdType = THRESH_BINARY_INV;
 
-		cv::medianBlur(adptThres, comthresIMG, 7);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
-	else if (thresParm.thresmode == 4)
-	{
+		if (thresParm.thresmode == 4)
+			nThresholdType = THRESH_BINARY;
+
 		if (thresParm.bgmax[imageParm.PICmode] & 1)
 		{
 			adaptWsize = thresParm.bgmax[imageParm.PICmode];
@@ -89,7 +76,8 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
 			adaptKsize = thresParm.fgmax[imageParm.PICmode];
 		}
-		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, nThresholdType, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
 		cv::medianBlur(adptThres, comthresIMG, 7);
 		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
 		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
