@@ -61,6 +61,8 @@ std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD_ target, P
 Mat RotatecorrectImg(double Rtheta, Mat src);
 
 
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm);
+
 /******Single- phase chip:::*******/
 //version 3
 std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
@@ -69,4 +71,4 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 /******Dual- phase hcip:::********/
 std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
 
-void PairChip_Finder(int& flag, Mat imgInput, Mat& imgThres, Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, vector<Point2f>& pairCentre, Point IMGoffset, ImgP_ imageParm);
+void PairChip_Finder(int& flag, Mat imgInput, Mat& imgThres, Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f& creteriaPoint, Point IMGoffset, ImgP_ imageParm);

@@ -5,30 +5,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 {
 	auto t_start = std::chrono::high_resolution_clock::now();
 
-	//output parameters:::
-	Mat Reqcomthres = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
-	Point crossCenter;
-	Mat marksize;
-	Mat Rotmarkpic = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
-	Mat Rotnew = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
-	Mat thresRot;
-	Point crossCenternew;
-	stIMG.copyTo(marksize);
-
-	//Thres parameters:::
-	Mat Gimg, gauGimh;
-	Mat gauBGR;
-	vector<vector<Point>>  contH, contRot; 
-	vector<Vec4i> hierH, hierRot;
-	vector<vector<Point>> reqConH;
-
-	Mat adptThres;
-	Mat HIGHthres;
-	Mat comthresIMG;
-	int adaptWsize = 3;
-	int adaptKsize = 2;
-
-	vector<vector<Point>>  contours, REQcont; 
+	vector<vector<Point>>  contours, REQcont;
 	Rect retCOMP;
 	vector<Rect> Rectlist;
 	vector<Point2f> center;
@@ -38,50 +15,28 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	vector<Point> approx;
 	vector< double> approxList;
 	double areacomthres;
+	vector<vector<Point>>  contH, contRot;
+	vector<Vec4i> hierH, hierRot;
+	vector<vector<Point>> reqConH;
+	Point crossCenter;
+	Mat thresRot;
+	Point crossCenternew;
 
 
-	//Step.1  pre-processing to enhance contrast
-	stIMG.convertTo(stIMG, -1, 1.2, 0);
-	cv::GaussianBlur(stIMG, gauBGR, Size(0, 0), 13);
-	cv::addWeighted(stIMG, 1.5, gauBGR, -0.7, 0.0, stIMG); 
 
-	//Step.2  pre-processing of denoise
-	cv::cvtColor(stIMG, Gimg, COLOR_RGB2GRAY);
-	cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
 
-	//Step.3 threshold filtering
-	if (thresParm.thresmode == 0)
-	{
-		Scalar maxthres = Scalar(thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode]);
-		Scalar minthres = Scalar(thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode]);
-		cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
-		cv::medianBlur(HIGHthres, comthresIMG, 17);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
-	else// thresParm.thresmode==3 & 4
-	{
-		int nThresholdType = THRESH_BINARY_INV;
+	Mat comthresIMG;
 
-		if (thresParm.thresmode == 4)
-			nThresholdType = THRESH_BINARY;
+	// Step 1 & Step 2 & Step 3
+	funcThreshold(stIMG, comthresIMG, thresParm, imageParm);
 
-		if (thresParm.bgmax[imageParm.PICmode] & 1)
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode];
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		else
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, nThresholdType, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+	Mat Reqcomthres = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
 
-		cv::medianBlur(adptThres, comthresIMG, 7);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
+	//output parameters:::
+	Mat marksize;
+	Mat Rotmarkpic = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
+	Mat Rotnew = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
+	stIMG.copyTo(marksize);
 
 
 	//Step.4 Featurize pattern via dimension filtering

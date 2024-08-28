@@ -101,42 +101,20 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		_target.TDwidth = target.TDwidth;
 
 
-		/*image with CROP  process :::*/
-		//Point piccenter;
-		//piccenter = find_piccenter(rawimg);
-		////std::cout << "pic center is ::" << piccenter.x << " , " << piccenter.y << endl;	
-		//IMGoffset.x = piccenter.x - int(imageParm.cols * 0.5);  //2736-600*0.5=2476
-		//IMGoffset.y = piccenter.y - int(imageParm.rows * 0.5);  //1824-600*0.5=1564
-		//Rect Cregion(IMGoffset.x, IMGoffset.y, imageParm.cols, imageParm.rows);
-		//cropedRImg = CropIMG(rawimg, Cregion);
-
-		///*///*image without CROP  process :::*/
-		//sizeParm.CsizeW = rawimg.size[0];
-		//sizeParm.CsizeH = sizeParm.CsizeW;
 		rawimg.copyTo(cropedRImg);
 
-		/*Rotate picture::: */
 		if (imageParm.correctTheta != 0)
-		{
 			cropedRImg = RotatecorrectImg(-1*imageParm.correctTheta, cropedRImg);
-		}
-		/*rotate end----------------*/
-
-
 
 		creteriaPoint = find_piccenter(cropedRImg);
 
 
-		if (imageParm.PICmode == 0)
+		if (imageParm.Outputmode == 0)
 		{
-			//start to ISP//////////////////////////
 			if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
 			{
-
 				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_dualphase(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-
 			}
-
 			else
 			{
 				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
@@ -144,7 +122,9 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		}
 		else
 		{
-
+			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
+			crossCenter = Point(creteriaPoint.x, creteriaPoint.y);
+			//std::tie(boolflag, ReqIMG, crossCenter, marksize)
 		}
 		
 		

@@ -288,3 +288,68 @@ Mat RotatecorrectImg(double Rtheta, Mat src)
 	return patchrotaIMG;
 }
 
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imageParm)
+{
+	ImgThres = Mat::zeros(ImgInput.rows, ImgInput.cols, CV_8UC1);
+	//Thres parameters:::
+	Mat Gimg, gauGimh;
+	Mat gauBGR;
+
+	Mat adptThres;
+	Mat HIGHthres;
+	int adaptWsize = 3;
+	int adaptKsize = 2;
+
+
+
+
+	//Step.1  pre-processing to enhance contrast
+	ImgInput.convertTo(ImgInput, -1, 1.2, 0);
+	cv::GaussianBlur(ImgInput, gauBGR, Size(0, 0), 13);
+	cv::addWeighted(ImgInput, 1.5, gauBGR, -0.7, 0.0, ImgInput);
+
+	//Step.2  pre-processing of denoise
+	cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
+	cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
+
+	//Step.3 threshold filtering
+	if (thresParm.thresmode == 0)
+	{
+		Scalar maxthres = Scalar(thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode]);
+		Scalar minthres = Scalar(thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode]);
+		cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
+		cv::medianBlur(HIGHthres, ImgThres, 17);
+		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+	}
+	else// thresParm.thresmode==3 & 4
+	{
+		int nThresholdType = THRESH_BINARY_INV;
+
+		if (thresParm.thresmode == 4)
+			nThresholdType = THRESH_BINARY;
+
+		if (thresParm.bgmax[imageParm.PICmode] & 1)
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode];
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+		else
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, nThresholdType, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
+		cv::medianBlur(adptThres, ImgThres, 7);
+		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+		Kcomclose.release();
+	}
+
+	gauBGR.release();
+	gauGimh.release();
+	Gimg.release();
+	HIGHthres.release();
+}
+

@@ -14,10 +14,10 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
-	imageParm.PICmode = 1;  
-	chipsetting.interval[0] = 0; 
-	chipsetting.xpitch[0] = 150; 
+	imageParm.Outputmode = 1; //0:center coord ; 1: multiple mode
+	imageParm.PICmode = 0;  
+	chipsetting.interval[0] = 500; 
+	chipsetting.xpitch[0] = 500; 
 	chipsetting.carx = 0;
 	chipsetting.cary = 0;
 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Pair Chip\\17701.bmp");
+	rawimg = imread("C:\\Image\\Pair Chip\\20240816_112326.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -66,11 +66,11 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 117;
+		target.TDwidth = 100;
 		target.TDmaxW = 1.4;
 		target.TDminW = 0.8;
 
-		target.TDheight = 252;
+		target.TDheight = 80;
 		target.TDmaxH = 1.3;
 		target.TDminH = 0.7;
 
@@ -134,10 +134,10 @@ int main()
 			thresParm.fgmax[0] = 255;
 
 			//thresParm.thresmode = 4;
-			//thresParm.fgmin[0] = 7;
-			//thresParm.bgmax[0] = 70;
+			//thresParm.fgmin[0] = 4;
+			//thresParm.bgmax[0] = 85;
 
-			if (imageParm.PICmode == 0)
+			if (imageParm.Outputmode == 0)
 			{
 				if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
 				{
@@ -155,11 +155,8 @@ int main()
 			}
 			else
 			{
-
-				vector<Point2f> vCenters;
-
-				PairChip_Finder(boolflag, cropedRImg,ReqIMG,marksize, thresParm, chipsetting, target, vCenters, IMGoffset, imageParm);
-
+				PairChip_Finder(boolflag, cropedRImg,ReqIMG,marksize, thresParm, chipsetting, target, creteriaPoint, IMGoffset, imageParm);
+				crossCenter = Point(creteriaPoint.x, creteriaPoint.y);
 			}
 
 
