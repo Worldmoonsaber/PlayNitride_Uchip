@@ -122,9 +122,17 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		}
 		else
 		{
-			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-			crossCenter = Point(creteriaPoint.x, creteriaPoint.y);
-			//std::tie(boolflag, ReqIMG, crossCenter, marksize)
+			vector<Point> vPt;
+			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, crossCenter, IMGoffset, _imageParm,vPt);
+
+
+			if(vPt.size()>0)
+				for (int i = 1; i < sizeof(outputLEDX)/ sizeof(float); i++)
+				{
+					outputLEDX[i] = vPt[i - 1].x;
+					outputLEDY[i] = vPt[i - 1].y;
+				}
+
 		}
 		
 		

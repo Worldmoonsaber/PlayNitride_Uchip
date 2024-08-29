@@ -341,11 +341,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thr
 								FILLED,
 								LINE_AA);
 
-
-
-
-							
-
 							Rect drawrect = Rect(int(crossCenter.x - chipsetting.carx - 0.5 * target.TDwidth),
 								int(crossCenter.y - chipsetting.cary - 0.5 * target.TDheight), //rectangle ini y
 								Rectlist[minIndex].width, //rectangle width
@@ -359,20 +354,15 @@ std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thr
 
 							if (imageParm.correctTheta != 0)
 							{
-								cv::circle(Rotnew,
-									(Point2i(crossCenter)), //coordinate
-									6, //radius
-									Scalar(180, 180, 180),  //color
-									FILLED,
-									LINE_AA);
-								Rotmarkpic = RotatecorrectImg(-1 * imageParm.correctTheta, Rotnew);
-								marksize = RotatecorrectImg(-1 * imageParm.correctTheta, marksize);
-								cv::inRange(Rotmarkpic, Scalar(175, 175, 175), Scalar(185, 185, 185), thresRot);
-								cv::findContours(thresRot, contRot, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
-								Moments Mans = (moments(contRot[0], false));
-								crossCenternew = Point2i((Point2f((Mans.m10 / Mans.m00), (Mans.m01 / Mans.m00)))) + IMGoffset;
-								std::cout << "check chip crossCenternew is: [ " << crossCenternew << " ]" << endl;
-								std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+
+								vector<Point> vPt;
+								vPt.push_back(crossCenter);
+
+								vector<Point> vPtOut;
+								funcRotatePoint(vPt, vPtOut, marksize, imageParm.correctTheta, IMGoffset);
+
+								if (vPtOut.size() > 0)
+									creteriaPoint = vPtOut[0];
 							}
 							else
 							{

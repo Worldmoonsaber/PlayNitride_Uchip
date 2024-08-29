@@ -14,16 +14,12 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	int minIndex;
 	vector<Point> approx;
 	vector< double> approxList;
-	double areacomthres;
 	vector<vector<Point>>  contH, contRot;
 	vector<Vec4i> hierH, hierRot;
 	vector<vector<Point>> reqConH;
 	Point crossCenter;
 	Mat thresRot;
 	Point crossCenternew;
-
-
-
 
 	Mat comthresIMG;
 
@@ -34,8 +30,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 	//output parameters:::
 	Mat marksize;
-	Mat Rotmarkpic = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
-	Mat Rotnew = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
+
 	stIMG.copyTo(marksize);
 
 
@@ -62,69 +57,31 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 		else
 		{
-			if (thresParm.thresmode == 3 || 4)
+			for (int i = 0; i < contH.size(); i++)
 			{
 
+				retCOMP = cv::boundingRect(contH[i]);
+				cv::approxPolyDP(contH[i], approx, 15, true);
+				if (retCOMP.width > target.TDwidth * target.TDminW
+					&& retCOMP.height > target.TDheight * target.TDminH
+					&& retCOMP.width < target.TDwidth * target.TDmaxW
+					&& retCOMP.height < target.TDheight * target.TDmaxH
+					)
 
-				for (int i = 0; i < contH.size(); i++)
 				{
+					Moments M = (moments(contH[i], false));
+					center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
+					piccenter = find_piccenter(comthresIMG);
+					distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
+					Rectlist.push_back(retCOMP);
+					approxList.push_back(approx.size());
+					REQcont.push_back(contH[i]);
+					cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
+					cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
 
-					retCOMP = cv::boundingRect(contH[i]);
-					areacomthres = cv::contourArea(contH[i]);
-					cv::approxPolyDP(contH[i], approx, 15, true); 
-					if (retCOMP.width > target.TDwidth * target.TDminW
-						&& retCOMP.height > target.TDheight * target.TDminH
-						&& retCOMP.width < target.TDwidth * target.TDmaxW
-						&& retCOMP.height < target.TDheight * target.TDmaxH
-						)
+				}
 
-					{
-						Moments M = (moments(contH[i], false));
-						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						piccenter = find_piccenter(comthresIMG);
-						distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
-						Rectlist.push_back(retCOMP);
-						approxList.push_back(approx.size());
-						REQcont.push_back(contH[i]);
-						cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-						cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
-
-					}
-
-				} //for-loop: contours
-
-
-
-			}//if-loop: (thresParm.thresmode == 3 || 4)
-
-			else //(thresParm.thresmode == 0 || 1|| 2)
-			{
-				for (int i = 0; i < contH.size(); i++)
-				{
-
-					retCOMP = cv::boundingRect(contH[i]);
-					areacomthres = cv::contourArea(contH[i]);
-					cv::approxPolyDP(contH[i], approx, 15, true); 
-					if (areacomthres > target.TDwidth * target.TDminW * target.TDheight * target.TDminH && areacomthres < target.TDwidth * target.TDmaxW * target.TDheight * target.TDmaxH)
-
-					{
-						Moments M = (moments(contH[i], false));
-						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						piccenter = find_piccenter(comthresIMG);
-						distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
-						Rectlist.push_back(retCOMP);
-						approxList.push_back(approx.size());
-						REQcont.push_back(contH[i]);
-						cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-						cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
-
-					}
-
-				} //for-loop: contours
-			} //if-loop: (thresParm.thresmode == 0 || 1|| 2)
-
+			} //for-loop: contours
 
 			//draw pic center:: 
 			cv::circle(marksize,
@@ -165,7 +122,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 							Rectlist[minIndex].width, //rectangle width
 							Rectlist[minIndex].height); //rectangle height
 
-
 					}
 					else
 					{
@@ -187,9 +143,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 						FILLED,
 						LINE_AA);
 
-					
-
-
 					cv::line(marksize, Point(0, crossCenter.y), Point(marksize.size[1], crossCenter.y), Scalar(255, 255, 255), 1, 8);
 					cv::line(marksize, Point(crossCenter.x, 0), Point(crossCenter.x, marksize.size[0]), Scalar(255, 255, 255), 1, 8);
 
@@ -198,20 +151,15 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 					if (imageParm.correctTheta != 0)
 					{
-						cv::circle(Rotnew,
-							(Point2i(crossCenter)), //coordinate
-							6, //radius
-							Scalar(180, 180, 180),  //color
-							FILLED,
-							LINE_AA);
-						Rotmarkpic = RotatecorrectImg(-1 * imageParm.correctTheta, Rotnew);
-						marksize = RotatecorrectImg(-1 * imageParm.correctTheta, marksize);
-						cv::inRange(Rotmarkpic, Scalar(175, 175, 175), Scalar(185, 185, 185), thresRot);
-						cv::findContours(thresRot, contRot, hierRot, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
-						Moments Mans = (moments(contRot[0], false));
-						crossCenternew = Point2i((Point2f((Mans.m10 / Mans.m00), (Mans.m01 / Mans.m00)))) + IMGoffset;
-						std::cout << "check chip crossCenternew is: [ " << crossCenternew << " ]" << endl;
-						std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+						vector<Point> vPt;
+						vPt.push_back(crossCenter);
+
+						vector<Point> vPtOut;
+						funcRotatePoint(vPt, vPtOut, marksize, imageParm.correctTheta, IMGoffset);
+
+						if (vPtOut.size() > 0)
+							creteriaPoint = vPtOut[0];
+
 					}
 					else
 					{
@@ -252,11 +200,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	std::cout << "result flag is :: " << flag << endl;
 	std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
 	std::cout << "calculate color-filter time is:: " << elapsed_time_ms << endl;
-
-
-
-
-
 
 	std::cout << "fini" << endl;
 	return { flag, Reqcomthres, crossCenternew, marksize };

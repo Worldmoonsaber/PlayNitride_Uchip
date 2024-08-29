@@ -353,3 +353,37 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imagePar
 	HIGHthres.release();
 }
 
+void funcRotatePoint(vector<Point> vPt, vector<Point>& vPtOut,Mat& marksize,float correctTheta, Point IMGoffset)
+{
+	vector<vector<Point>>  contH, contRot;
+	vector<Vec4i> hierH, hierRot;
+	Mat thresRot;
+
+	Mat Rotmarkpic = Mat::ones(marksize.rows, marksize.cols, CV_8UC3);
+	Mat Rotnew = Mat::ones(marksize.rows, marksize.cols, CV_8UC3);
+
+	for (int i = 0; i < vPt.size(); i++)
+	{
+		cv::circle(Rotnew,
+			(vPt[i]), //coordinate
+			6, //radius
+			Scalar(180, 180, 180),  //color
+			FILLED,
+			LINE_AA);
+
+	}
+
+	Rotmarkpic = RotatecorrectImg(-1 * correctTheta, Rotnew);
+	marksize = RotatecorrectImg(-1 * correctTheta, marksize);
+	cv::inRange(Rotmarkpic, Scalar(175, 175, 175), Scalar(185, 185, 185), thresRot);
+	cv::findContours(thresRot, contRot, hierRot, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
+
+	for (int i = 0; i < contRot.size(); i++)
+	{
+		Moments Mans = (moments(contRot[0], false));
+		vPtOut.push_back(Point2i((Point2f((Mans.m10 / Mans.m00), (Mans.m01 / Mans.m00)))) + IMGoffset);
+	}
+
+	Rotmarkpic.release();
+	Rotnew.release();
+}
