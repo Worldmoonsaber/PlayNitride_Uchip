@@ -138,7 +138,6 @@
     <ClCompile Include="InputOperation.cpp" />
     <ClCompile Include="MTchip_main.cpp" />
     <ClCompile Include="MT_ChipfunctionV2.cpp" />
-    <ClCompile Include="MT_ChipfunctionV1_.cpp" />
     <ClCompile Include="OpenCV_Extension_Tool.cpp" />
     <ClCompile Include="PairChip_Finder.cpp" />
   </ItemGroup>

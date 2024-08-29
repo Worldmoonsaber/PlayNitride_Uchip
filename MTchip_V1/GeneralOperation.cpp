@@ -288,7 +288,7 @@ Mat RotatecorrectImg(double Rtheta, Mat src)
 	return patchrotaIMG;
 }
 
-void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imageParm)
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imageParm, sizeTD_ target)
 {
 	ImgThres = Mat::zeros(ImgInput.rows, ImgInput.cols, CV_8UC1);
 	//Thres parameters:::
@@ -319,8 +319,38 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imagePar
 		Scalar minthres = Scalar(thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode]);
 		cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
 		cv::medianBlur(HIGHthres, ImgThres, 17);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+
+		Size S_kermask, S_kernelLOW2, S_Kcomclose;
+
+		if (target.TDheight < target.TDwidth)
+		{
+			S_kermask = Size(10, 1);
+			S_kernelLOW2 = Size(1, 7);
+			S_Kcomclose = Size(10, 5);
+		}
+		else
+		{
+			S_kermask = Size(1, 10);
+			S_kernelLOW2 = Size(7, 1);
+			S_Kcomclose = Size(5, 10);
+		}
+
+		Mat Kcomclose = Mat::ones(S_Kcomclose, CV_8UC1);  //Size(10,5)
 		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+
+
+		if (thresParm.bgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999)
+		{
+			Scalar maxthres = Scalar(thresParm.bgmax[imageParm.PICmode], thresParm.bgmax[imageParm.PICmode], thresParm.bgmax[imageParm.PICmode]);
+			Scalar minthres = Scalar(thresParm.bgmin[imageParm.PICmode], thresParm.bgmin[imageParm.PICmode], thresParm.bgmin[imageParm.PICmode]);
+			cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
+			cv::medianBlur(HIGHthres, HIGHthres, 17);
+			ImgThres = ImgThres + HIGHthres;
+			cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+		}
+
+
+
 	}
 	else// thresParm.thresmode==3 & 4
 	{

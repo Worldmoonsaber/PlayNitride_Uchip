@@ -166,8 +166,6 @@ void FindOtherPairs(vector<BlobInfo>& vRegions_Filtered, RotatedRect min_rect,Po
 	for (int i = 0; i < vY.size(); i++)
 		cv::line(imgOut, Point(0, vY[i]), Point(imgOut.size[1], vY[i]), Scalar(255, 255, 255), 1, 8);
 
-	std::cout << "vX.size():: " << vX.size() << endl;
-
 	for (int i = 0; i < vX.size(); i++)
 		for (int j = 0; j < vY.size(); j++)
 		{
@@ -181,15 +179,10 @@ void FindOtherPairs(vector<BlobInfo>& vRegions_Filtered, RotatedRect min_rect,Po
 
 			Point2f pt = Point(vX[i], vY[j]);
 
-			std::cout << "pt:: " << pt << endl;
-
-
 			std::sort(vRegions_Filtered.begin(), vRegions_Filtered.end(), [&, pt](BlobInfo& a, BlobInfo& b)
 				{
 					return norm(a.Center() - pt) < norm(b.Center() - pt);
 				});
-
-			std::cout << "vRegions_Filtered.size():: " << vRegions_Filtered.size() << endl;
 
 
 			float dist1 = norm(vRegions_Filtered[0].Center() - pt);
@@ -218,10 +211,8 @@ void FindOtherPairs(vector<BlobInfo>& vRegions_Filtered, RotatedRect min_rect,Po
 void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point& creteriaPoint, Point IMGoffset, ImgP_ imageParm, vector<Point>& otherCenters)
 {
 	flag = 0;
-
 	imgOut = imgInput.clone();
-	funcThreshold(imgInput, imgThres, thresParm,imageParm);
-
+	funcThreshold(imgInput, imgThres, thresParm,imageParm,target);
 	int maxArea= target.TDheight*target.TDwidth*target.TDmaxW* target.TDmaxH;
 	int minArea= target.TDheight * target.TDwidth * target.TDminW* target.TDminH;
 	//---邊緣進行切割
@@ -232,7 +223,6 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 		flag = 1;
 		throw "something wrong::threshold value issue";
 	}
-
 
 	vector<BlobInfo> vRegions_Filtered;
 	//--依照條件過濾
@@ -266,63 +256,30 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 
 	std::sort(vRegions_Filtered.begin(), vRegions_Filtered.end(), [&,ptC](BlobInfo& a, BlobInfo& b)
 		{
-			norm(a.Center() - ptC);			
 			return norm(a.Center() - ptC) < norm(b.Center() - ptC);
 		});
 
 	vector<vector<Point>> vPtC_Chip;
-
 	vector<Point> vPtC_Rect;
 
 	for (int i = 0; i < 2; i++)
 		vPtC_Chip.push_back(vRegions_Filtered[i].contour());
 
 	drawContours(Debug, vPtC_Chip, -1, Scalar(255, 255, 255));
-
 	findNonZero(Debug, vPtC_Rect);
-
 	cv::RotatedRect min_rect = minAreaRect(vPtC_Rect);
-
-	cv::Point vertices[4];
 	Point2f vertices2f[4];
-
 	min_rect.points(vertices2f);
 
 	for (int i = 0; i < 4; i++)
 		line(imgOut, vertices2f[i], vertices2f[(i + 1) % 4], Scalar(0, 255, 0), 3);
 
-	for (int i = 0; i < 4; ++i)
-		vertices[i] = vertices2f[i];
-
-	//影像中心
-	cv::circle(imgOut,ptC,9,Scalar(0, 255, 255),FILLED,LINE_AA);
-
-	// Chip Pair 中心
-	cv::circle(imgOut,min_rect.center,6,Scalar(255, 0, 255),FILLED,LINE_AA);
-	cv::line(imgOut, Point(0, min_rect.center.y), Point(imgOut.size[1], min_rect.center.y), Scalar(255, 255, 255), 1, 8);
-	cv::line(imgOut, Point(min_rect.center.x, 0), Point(min_rect.center.x, imgOut.size[0]), Scalar(255, 255, 255), 1, 8);
 
 	//-----計算是否偏離
 
-	if (chipsetting.xpitch[0] > 0)
-		if (abs(ptC.x - min_rect.center.x) > chipsetting.xpitch[0])
-			flag = 6; //畫面中心無晶片
-
-	if(chipsetting.ypitch[0]>0)
-		if (abs(ptC.y - min_rect.center.y) > chipsetting.ypitch[0])
-			flag = 6; //畫面中心無晶片
-
-	if (chipsetting.ypitch[0] <= 0 & chipsetting.xpitch[0] <= 0)
+	if (chipsetting.xpitch[0] < norm(min_rect.center - ptC))
 	{
-		cv::fillConvexPoly(Debug, vertices, 4, Scalar(255, 255, 255));
-		uchar uCenter = Debug.at<uchar>(ptC.y, ptC.x);
-
-		if (uCenter == 0)
-			flag = 6; //畫面中心無晶片
-	}
-
-	if (flag == 6)
-	{
+		flag = 6; //畫面中心無晶片
 		throw "something wrong::potential object doesn't fit suitable dimension";
 	}
 
@@ -331,17 +288,33 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 	vector<Point2f> vPtChipPair;
 
 	if (flag == 0 & imageParm.Outputmode>1)
-	{
 		FindOtherPairs(vRegions_Filtered, min_rect, ptC, target, imgOut, vPtChipPair);
-	}
 #pragma endregion
 
-
 	Point ptCarr= min_rect.center+ Point2f(chipsetting.carx, chipsetting.cary);
+
+	std::sort(vPtChipPair.begin(), vPtChipPair.end(), [ptC](Point a, Point b)
+		{
+			Point2f af = Point2f(a.x, a.y);
+			Point2f bf = Point2f(b.x, b.y);
+			return norm(af - ptC) < norm(bf - ptC);
+		});
 
 	for(int i=0;i< vPtChipPair.size();i++)
 		vPtChipPair[i]= vPtChipPair[i]+ Point2f(chipsetting.carx, chipsetting.cary);
 	
+	//影像中心
+	cv::circle(imgOut, ptC + Point2f(chipsetting.carx, chipsetting.cary), 9, Scalar(0, 255, 255), FILLED, LINE_AA);
+
+	// Chip Pair 中心
+	cv::circle(imgOut, min_rect.center, 6, Scalar(255, 0, 255), FILLED, LINE_AA);
+	cv::line(imgOut, Point(0, ptCarr.y), Point(imgOut.size[1], ptCarr.y), Scalar(255, 255, 255), 1, 8);
+	cv::line(imgOut, Point(ptCarr.x, 0), Point(ptCarr.x, imgOut.size[0]), Scalar(255, 255, 255), 1, 8);
+
+
+
+
+
 	if (imageParm.correctTheta != 0) //平台不能轉的case 
 	{
 		vector<Point> vPt;
@@ -359,7 +332,6 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 			vPt.push_back((Point)vPtChipPair[i]);
 
 		funcRotatePoint(vPt, otherCenters, imgOut, imageParm.correctTheta, IMGoffset);
-
 	}
 	else
 	{

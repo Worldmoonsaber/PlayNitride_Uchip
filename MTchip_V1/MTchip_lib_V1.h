@@ -62,7 +62,7 @@ Mat RotatecorrectImg(double Rtheta, Mat src);
 
 void funcRotatePoint(vector<Point> vPt, vector<Point>& vPtOut, Mat& marksize, float correctTheta, Point IMGoffset);
 
-void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm);
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm, sizeTD_ target);
 
 /******Single- phase chip:::*******/
 //version 3

@@ -160,7 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\MTchip_V1\GeneralOperation.cpp" />
-    <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV1_.cpp" />
     <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV2.cpp" />
     <ClCompile Include="..\MTchip_V1\OpenCV_Extension_Tool.cpp" />
     <ClCompile Include="..\MTchip_V1\PairChip_Finder.cpp" />

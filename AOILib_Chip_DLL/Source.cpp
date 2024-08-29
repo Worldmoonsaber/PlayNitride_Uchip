@@ -110,28 +110,23 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 
 		if (imageParm.Outputmode == 0)
-		{
-			if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
-			{
-				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_dualphase(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-			}
-			else
-			{
-				std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-			}
+		{	
+			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
 		}
 		else
 		{
 			vector<Point> vPt;
 			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, crossCenter, IMGoffset, _imageParm,vPt);
 
-
-			if(vPt.size()>0)
-				for (int i = 1; i < sizeof(outputLEDX)/ sizeof(float); i++)
+			if (vPt.size() > 0)
+				for (int i = 1; i < sizeof(outputLEDX) / sizeof(outputLEDX[0]); i++)
 				{
+					if (i - 1 == vPt.size())
+						break;
 					outputLEDX[i] = vPt[i - 1].x;
 					outputLEDY[i] = vPt[i - 1].y;
 				}
+
 
 		}
 		

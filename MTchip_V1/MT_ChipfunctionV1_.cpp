@@ -1,5 +1,6 @@
 #include "MTchip_lib_V1.h"
 
+
 std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm)
 {
 	auto t_start = std::chrono::high_resolution_clock::now();
@@ -362,7 +363,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thr
 								funcRotatePoint(vPt, vPtOut, marksize, imageParm.correctTheta, IMGoffset);
 
 								if (vPtOut.size() > 0)
-									creteriaPoint = vPtOut[0];
+									crossCenternew = vPtOut[0];
 							}
 							else
 							{
@@ -404,16 +405,6 @@ std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thr
 
 
 
-
-
-
-
-
-
-
-
-
-
 	//////////////////////////////////////////////////////////output//////////////////////////////////
 	auto t_end = std::chrono::high_resolution_clock::now();
 	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
@@ -426,7 +417,19 @@ std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thr
 	std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
 
 
-
+	BGRmask.release();
+	BGRmask_OPEN.release();
+	Rotnew.release();
+	Rotmarkpic.release();
+	ReqH.release();
+	picSLow.release();
+	picLLow.release();
+	LOWimg.release();
+	HIGHthres.release();
+	Gimg.release();
+	gauGimh.release();
+	comthresIMG.release();
+	stIMG.release();
 	return { flag, Reqcomthres, crossCenternew, marksize };
 }
 

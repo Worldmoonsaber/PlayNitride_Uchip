@@ -1,87 +1,70 @@
 #include "MTchip_lib_V1.h"
+#include "OpenCV_Extension_Tool.h"
 
 
 std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm)
 {
 	auto t_start = std::chrono::high_resolution_clock::now();
-
-	vector<vector<Point>>  contours, REQcont;
-	Rect retCOMP;
-	vector<Rect> Rectlist;
-	vector<Point2f> center;
-	vector<double> distance;
 	Point2f piccenter;
-	int minIndex;
-	vector<Point> approx;
-	vector< double> approxList;
-	vector<vector<Point>>  contH, contRot;
-	vector<Vec4i> hierH, hierRot;
-	vector<vector<Point>> reqConH;
 	Point crossCenter;
-	Mat thresRot;
 	Point crossCenternew;
-
 	Mat comthresIMG;
 
 	// Step 1 & Step 2 & Step 3
-	funcThreshold(stIMG, comthresIMG, thresParm, imageParm);
-
+	funcThreshold(stIMG, comthresIMG, thresParm, imageParm, target);
 	Mat Reqcomthres = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
-
 	//output parameters:::
 	Mat marksize;
-
 	stIMG.copyTo(marksize);
-
-
 	//Step.4 Featurize pattern via dimension filtering
-	Mat finescanIMG = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
-	Rect drawrect;
-	Rect fineRect;
-	Point centerTD;
-
-	cv::findContours(comthresIMG, contH, hierH,
-		cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
-
-	cv::drawContours(Reqcomthres, contH, -1, Scalar(255, 255, 255), -1);
-
+	piccenter = find_piccenter(comthresIMG);
+	vector<BlobInfo> blobRegion = RegionPartition(comthresIMG, target.TDwidth * target.TDmaxW * target.TDheight * target.TDmaxH*2, 1);
+	Reqcomthres = comthresIMG.clone();
 
 	try
 	{
-
-		if (contH.size() == 0)
+		if (blobRegion.size() == 0)
 		{
 			flag = 1;
 			throw "something wrong::threshold value issue";
 		}
-
 		else
 		{
-			for (int i = 0; i < contH.size(); i++)
+			vector<vector<cv::Point>> vContour;
+			vector<vector<cv::Point>> vContourFiltered;
+			vector<BlobInfo> blobRegionPossible;
+
+			for (int i = 0; i < blobRegion.size(); i++)
 			{
+				int ww = blobRegion[i].Xmax() - blobRegion[i].Xmin();
+				int hh = blobRegion[i].Ymax() - blobRegion[i].Ymin();
 
-				retCOMP = cv::boundingRect(contH[i]);
-				cv::approxPolyDP(contH[i], approx, 15, true);
-				if (retCOMP.width > target.TDwidth * target.TDminW
-					&& retCOMP.height > target.TDheight * target.TDminH
-					&& retCOMP.width < target.TDwidth * target.TDmaxW
-					&& retCOMP.height < target.TDheight * target.TDmaxH
-					)
-
+				if (ww > target.TDwidth * target.TDmaxW)
 				{
-					Moments M = (moments(contH[i], false));
-					center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-					piccenter = find_piccenter(comthresIMG);
-					distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
-					Rectlist.push_back(retCOMP);
-					approxList.push_back(approx.size());
-					REQcont.push_back(contH[i]);
-					cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-					cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
+					vContourFiltered.push_back(blobRegion[i].Points());
+					continue;
 				}
 
-			} //for-loop: contours
+				if (hh > target.TDheight * target.TDmaxH)
+				{
+					vContourFiltered.push_back(blobRegion[i].Points());
+					continue;
+				}
+
+				if (ww > target.TDwidth * target.TDminW
+					&& hh > target.TDheight * target.TDminH
+					&& ww < target.TDwidth * target.TDmaxW
+					&& hh < target.TDheight * target.TDmaxH
+					)
+				{
+					blobRegionPossible.push_back(blobRegion[i]);
+					cv::rectangle(marksize, Point(blobRegion[i].Xmin(), blobRegion[i].Ymin()), Point(blobRegion[i].Xmax(), blobRegion[i].Ymax()), Scalar(255, 255, 255), 1);
+					cv::rectangle(Reqcomthres, Point(blobRegion[i].Xmin(), blobRegion[i].Ymin()), Point(blobRegion[i].Xmax(), blobRegion[i].Ymax()), Scalar(255, 255, 255), -1);
+				}
+				else
+					vContour.push_back(blobRegion[i].Points());
+
+			}
 
 			//draw pic center:: 
 			cv::circle(marksize,
@@ -91,7 +74,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 				FILLED,
 				LINE_AA);
 
-			if (center.size() == 0)
+			if (blobRegionPossible.size() == 0)
 			{
 				flag = 2;
 				throw "something wrong::potential object doesn't fit suitable dimension";
@@ -99,42 +82,22 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 			else
 			{
 
-				//Step.5 Define center chip ::Find a LED coordinate with the shortest distance to the pic center
-				auto it = std::min_element(distance.begin(), distance.end());
-				minIndex = std::distance(distance.begin(), it);
-				
+				std::sort(blobRegionPossible.begin(), blobRegionPossible.end(), [&, piccenter](BlobInfo& a, BlobInfo& b)
+					{
+						norm(a.Center() - piccenter);
+						return norm(a.Center() - piccenter) < norm(b.Center() - piccenter);
+					});
 
-				if (distance[minIndex] > chipsetting.xpitch[0])
+				float dist = norm(blobRegionPossible[0].Center() - piccenter);
+
+				if ( dist> chipsetting.xpitch[0])
 				{
 					flag = 6;
 					throw "something wrong::potential object doesn't fit suitable dimension";
 				}
 				else
 				{
-					std::wcout << "check approx  size main: " << approxList[minIndex] << endl;
-
-
-					if (approxList[minIndex] == 4)
-					{
-						crossCenter = center[minIndex] + Point2f(chipsetting.carx, chipsetting.cary);
-						drawrect = Rect(Rectlist[minIndex].x,
-							Rectlist[minIndex].y, //rectangle ini y
-							Rectlist[minIndex].width, //rectangle width
-							Rectlist[minIndex].height); //rectangle height
-
-					}
-					else
-					{
-						//Step.6 Redefine center coordinate:
-						std::cout << "start fine define...." << endl;
-						cv::drawContours(finescanIMG, REQcont, minIndex, Scalar(255, 255, 255), -1);
-
-						tie(fineRect, centerTD) = FindMaxInnerRect(finescanIMG, stIMG, target, center[minIndex]);
-
-						crossCenter = Point2f(centerTD) + Point2f(chipsetting.carx, chipsetting.cary);
-						drawrect = fineRect;
-
-					}
+					crossCenter = blobRegionPossible[0].Center() + Point2f(chipsetting.carx, chipsetting.cary);
 
 					cv::circle(marksize,
 						(Point2i(crossCenter)), //coordinate
@@ -158,8 +121,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 						funcRotatePoint(vPt, vPtOut, marksize, imageParm.correctTheta, IMGoffset);
 
 						if (vPtOut.size() > 0)
-							creteriaPoint = vPtOut[0];
-
+							crossCenternew = vPtOut[0];
 					}
 					else
 					{
@@ -188,10 +150,8 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 	/*Mat Rotmark;
 	Rotmark = RotatecorrectImg(-2.6, marksize);*/
-
-
-
-
+	comthresIMG.release();
+	stIMG.release();
 	//////////////////////////////////////////////////////////output//////////////////////////////////
 	auto t_end = std::chrono::high_resolution_clock::now();
 	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
