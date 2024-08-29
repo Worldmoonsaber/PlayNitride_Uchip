@@ -337,11 +337,15 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 #pragma endregion
 
 
+	Point ptCarr= min_rect.center+ Point2f(chipsetting.carx, chipsetting.cary);
+
+	for(int i=0;i< vPtChipPair.size();i++)
+		vPtChipPair[i]= vPtChipPair[i]+ Point2f(chipsetting.carx, chipsetting.cary);
 	
 	if (imageParm.correctTheta != 0) //平台不能轉的case 
 	{
 		vector<Point> vPt;
-		vPt.push_back(min_rect.center);
+		vPt.push_back(ptCarr);
 
 		vector<Point> vPtOut;
 		funcRotatePoint(vPt, vPtOut, imgOut, imageParm.correctTheta,IMGoffset);
@@ -359,7 +363,7 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 	}
 	else
 	{
-		creteriaPoint = Point(min_rect.center.x + IMGoffset.x, min_rect.center.y + IMGoffset.y);
+		creteriaPoint = Point(ptCarr.x + IMGoffset.x, ptCarr.y + IMGoffset.y);
 
 		for (int i = 0; i < vPtChipPair.size(); i++)
 			otherCenters.push_back(Point(vPtChipPair[i].x + IMGoffset.x, vPtChipPair[i].y + IMGoffset.y));
