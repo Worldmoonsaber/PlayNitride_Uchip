@@ -288,7 +288,7 @@ Mat RotatecorrectImg(double Rtheta, Mat src)
 	return patchrotaIMG;
 }
 
-void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imageParm, sizeTD_ target)
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm, sizeTD_ target)
 {
 	ImgThres = Mat::zeros(ImgInput.rows, ImgInput.cols, CV_8UC1);
 	//Thres parameters:::
@@ -300,17 +300,25 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imagePar
 	int adaptWsize = 3;
 	int adaptKsize = 2;
 
-
-
-
 	//Step.1  pre-processing to enhance contrast
-	ImgInput.convertTo(ImgInput, -1, 1.2, 0);
-	cv::GaussianBlur(ImgInput, gauBGR, Size(0, 0), 13);
-	cv::addWeighted(ImgInput, 1.5, gauBGR, -0.7, 0.0, ImgInput);
+	if (thresParm.thresmode == 0
+		|| thresParm.thresmode == 3
+		|| thresParm.thresmode == 4)
+	{
+		ImgInput.convertTo(ImgInput, -1, 1.2, 0);
 
-	//Step.2  pre-processing of denoise
-	cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
-	cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
+		cv::GaussianBlur(ImgInput, gauBGR, Size(0, 0), 13);
+		cv::addWeighted(ImgInput, 1.5, gauBGR, -0.7, 0.0, ImgInput);
+
+		//Step.2  pre-processing of denoise
+		cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
+		cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
+	}
+	else
+	{
+		cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
+	}
+
 
 	//Step.3 threshold filtering
 	if (thresParm.thresmode == 0)
@@ -352,7 +360,7 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imagePar
 
 
 	}
-	else// thresParm.thresmode==3 & 4
+	else if(thresParm.thresmode==3 || thresParm.thresmode == 4)
 	{
 		int nThresholdType = THRESH_BINARY_INV;
 
@@ -375,6 +383,31 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm,ImgP_ imagePar
 		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
 		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
 		Kcomclose.release();
+	}
+	else // thresParm.thresmode==5 ¥H¤Î¨¾§b
+	{
+		Mat ImgThres2;
+		adaptiveThreshold(Gimg, ImgThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
+		adaptiveThreshold(Gimg, ImgThres2, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
+		//cv::medianBlur(adptThres, ImgThres, 7);
+		Mat Kcomopen = Mat::ones(Size(10, 10), CV_8UC1);  //Size(10,5)
+		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_OPEN, Kcomopen, Point(-1, -1), 1);//1 //2
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomopen, Point(-1, -1), 1);//1 //2
+
+		cv::morphologyEx(ImgThres2, ImgThres2, cv::MORPH_OPEN, Kcomopen, Point(-1, -1), 1);//1 //2
+		cv::morphologyEx(ImgThres2, ImgThres2, cv::MORPH_CLOSE, Kcomopen, Point(-1, -1), 1);//1 //2
+
+		bitwise_or(ImgThres, ImgThres2, ImgThres);
+		Mat Kcomclose2 = Mat::ones(Size(3, 3), CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose2, Point(-1, -1), 1);//1 //2
+
+		ImgThres2.release();
+		Kcomclose.release();
+		Kcomopen.release();
+		Kcomclose2.release();
 	}
 
 	gauBGR.release();

@@ -136,7 +136,8 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	std::cout << "check img state:: " << boolflag << endl;
 	std::cout << "check center is ::" << crossCenter << endl;
 
-	
+	if(!cropedRImg.empty())
+		cropedRImg.release();
 
 	/*  :::::::OUTPUT area:::::::  */
 	outputLEDX[0] = crossCenter.x ;

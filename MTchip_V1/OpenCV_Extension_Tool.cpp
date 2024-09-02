@@ -129,6 +129,8 @@ void BlobInfo::CaculateBlob(vector<Point> vArea, vector<Point> vContour)
 
 	}
 
+	_Width = _XmaxBound - _XminBound + 1;
+	_Height = _YmaxBound - _YminBound + 1;
 	_center = Point2f(x_sum / vArea.size(), y_sum / vArea.size());
 
 	float min_len = _area;
@@ -339,6 +341,16 @@ int BlobInfo::Xmax()
 int BlobInfo::Ymax()
 {
 	return _YmaxBound;
+}
+
+int BlobInfo::Width()
+{
+	return _Width;
+}
+
+int BlobInfo::Height()
+{
+	return _Height;
 }
 
 float BlobInfo::Bulkiness()
@@ -573,12 +585,13 @@ BlobInfoThreadObject::BlobInfoThreadObject()
 
 void BlobInfoThreadObject::Initialize()
 {
+	_result.reserve(100);
 	thread_Work = thread(BlobInfoThreadObject::thread_WorkContent,&_QueueObj,&_isProcessWaitToFinished,&_result,&mu);
 }
 
 void BlobInfoThreadObject::AddObject(vector<Point> vArea, vector<Point> vContour)
 {
-	mu.lock();
+	mu.try_lock();
 	_QueueObj.push(tuple<vector<Point>, vector<Point>>(vArea, vContour));
 	mu.unlock();
 }
@@ -607,7 +620,7 @@ void BlobInfoThreadObject::thread_WorkContent(queue <tuple<vector<Point>, vector
 		{
 			tuple<vector<Point>, vector<Point>> obj;
 
-			mutex->lock();
+			mutex->try_lock();
 			obj = queue->front();//取得資料
 			queue->pop();//將資料從_QueueObj中清除		
 			mutex->unlock();
@@ -628,6 +641,7 @@ void BlobInfoThreadObject::thread_WorkContent(queue <tuple<vector<Point>, vector
 vector<BlobInfo> RegionPartition(Mat ImgBinary,int maxArea, int minArea)
 {
 	vector<BlobInfo> lst;
+	lst.reserve(100);
 	uchar tagOverSize = 10;
 	Mat ImgTag = ImgBinary.clone();
 
@@ -765,6 +779,7 @@ vector<BlobInfo> RegionPartition(Mat ImgBinary, BlobFilter filter)
 vector<BlobInfo> RegionPartitionNonMultiThread(Mat ImgBinary, int maxArea, int minArea)
 {
 	vector<BlobInfo> lst;
+	lst.reserve(100);
 	uchar tagOverSize = 10;
 	Mat ImgTag = ImgBinary.clone();
 

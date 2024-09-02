@@ -4,6 +4,7 @@
 #include<opencv2/highgui/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp> //mophorlogical operation
 #include<opencv2/core.hpp>
+#include<vector>
 
 using namespace cv;
 using namespace std;
@@ -64,7 +65,8 @@ public:
     int Ymin();
     int Xmax();
     int Ymax();
-
+    int Width();
+    int Height();
     /// <summary>
     /// ½´ÃP«×
     /// </summary>
@@ -110,6 +112,8 @@ private:
     float _compactness = -1;
     float _roundness = -1;
     float _sides = -1;
+    float _Width = -1;
+    float _Height = -1;
 };
 
 class BlobFilter

@@ -36,8 +36,8 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 			for (int i = 0; i < blobRegion.size(); i++)
 			{
-				int ww = blobRegion[i].Xmax() - blobRegion[i].Xmin();
-				int hh = blobRegion[i].Ymax() - blobRegion[i].Ymin();
+				int ww = blobRegion[i].Width();
+				int hh = blobRegion[i].Height();
 
 				if (ww > target.TDwidth * target.TDmaxW)
 				{

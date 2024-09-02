@@ -229,8 +229,8 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 
 	for (int i = 0; i < vRegions.size(); i++)
 	{
-		int ww = vRegions[i].Xmax() - vRegions[i].Xmin();
-		int hh = vRegions[i].Ymax() - vRegions[i].Ymin();
+		int ww = vRegions[i].Width();
+		int hh = vRegions[i].Height();
 
 		if (ww > target.TDwidth * target.TDmaxW || ww < target.TDwidth * target.TDminW)
 			continue;
@@ -252,7 +252,7 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 
 	//----DebugImg
 	Mat Debug = Mat::zeros(imgInput.rows, imgInput.cols, CV_8UC1);
-	Point2f ptC = Point2f(imgInput.cols / 2,imgInput.rows / 2);
+	Point2f ptC = find_piccenter(imgInput);
 
 	std::sort(vRegions_Filtered.begin(), vRegions_Filtered.end(), [&,ptC](BlobInfo& a, BlobInfo& b)
 		{
@@ -306,13 +306,10 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 	//影像中心
 	cv::circle(imgOut, ptC + Point2f(chipsetting.carx, chipsetting.cary), 9, Scalar(0, 255, 255), FILLED, LINE_AA);
 
-	// Chip Pair 中心
-	cv::circle(imgOut, min_rect.center, 6, Scalar(255, 0, 255), FILLED, LINE_AA);
 	cv::line(imgOut, Point(0, ptCarr.y), Point(imgOut.size[1], ptCarr.y), Scalar(255, 255, 255), 1, 8);
 	cv::line(imgOut, Point(ptCarr.x, 0), Point(ptCarr.x, imgOut.size[0]), Scalar(255, 255, 255), 1, 8);
-
-
-
+	// Chip Pair 中心
+	cv::circle(imgOut, min_rect.center, 6, Scalar(255, 0, 255), FILLED, LINE_AA);
 
 
 	if (imageParm.correctTheta != 0) //平台不能轉的case 

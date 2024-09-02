@@ -14,7 +14,7 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
+	imageParm.Outputmode = 1; //0:center coord ; 1: multiple mode
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 500; 
 	chipsetting.xpitch[0] = 500; 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Uchip\\L5\\20230613\\204001.bmp");
+	rawimg = imread("C:\\Image\\Pair Chip\\20240830 PN177 chips image\\3_I140.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -67,12 +67,12 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 170;
-		target.TDmaxW = 1.4;
+		target.TDwidth = 150;
+		target.TDmaxW = 1.5;
 		target.TDminW = 0.8;
 
-		target.TDheight = 80;
-		target.TDmaxH = 1.3;
+		target.TDheight = 270;
+		target.TDmaxH = 1.5;
 		target.TDminH = 0.7;
 
 		//thresParm = { 4,{200,107,107},{99999,99999,99999} ,{1,9,9}, {99999,99999,99999} }; //MTchip-G¡BB[0]
@@ -127,14 +127,17 @@ int main()
 			//creteriaPoint = Point2f(382,570); //dirt8280312
 
 			
-			thresParm.thresmode = 0;
-			thresParm.fgmin[0] = 0;
-			thresParm.fgmax[0] = 30;
-			thresParm.bgmin[0] = 60;
-			thresParm.bgmax[0] = 255;
-			//thresParm.thresmode = 3;
-			//thresParm.fgmin[0] = 4;
-			//thresParm.bgmax[0] = 241;
+			thresParm.thresmode = 5;
+			thresParm.fgmax[0] = 0;
+			thresParm.bgmax[0] = 101;
+
+			//thresParm.fgmin[0] = 0;
+			//thresParm.bgmin[0] = 190;
+
+
+			//thresParm.thresmode = 0;
+			//thresParm.bgmin[0] = 190;
+			//thresParm.bgmax[0] = 255;
 
 			if (imageParm.Outputmode == 0)
 			{					

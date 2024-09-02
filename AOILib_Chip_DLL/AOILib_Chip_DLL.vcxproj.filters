@@ -62,6 +62,9 @@
     <ClCompile Include="..\MTchip_V1\PairChip_Finder.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV1_.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AOILib_Chip_DLL.rc">

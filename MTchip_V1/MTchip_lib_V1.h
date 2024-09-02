@@ -56,8 +56,13 @@ Point find_piccenter(Mat src);
 Mat CropIMG(Mat img, Rect size);
 
 
+#pragma region 已經沒有在使用的功能
 int findBoundary(Mat creteriaIMG, Rect inirect, char direction);
 std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD_ target, Point TDcenter);
+
+#pragma endregion
+
+
 Mat RotatecorrectImg(double Rtheta, Mat src);
 
 void funcRotatePoint(vector<Point> vPt, vector<Point>& vPtOut, Mat& marksize, float correctTheta, Point IMGoffset);
@@ -71,5 +76,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 /******Dual- phase hcip:::********/
 std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
+// P.S: Uchip_dualphase 功能已被 Uchip_singlephaseDownV3 完全取代
+
 
 void PairChip_Finder(int& flag, Mat imgInput, Mat& imgThres, Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point& creteriaPoint, Point IMGoffset, ImgP_ imageParm,vector<Point>& otherCenters);
