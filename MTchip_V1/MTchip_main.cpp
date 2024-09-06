@@ -14,7 +14,7 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
+	imageParm.Outputmode = 2; //0:center coord ; 1: multiple mode
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 0; 
 	chipsetting.xpitch[0] = 150; 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Uchip\\MT1\\240522_MT1Ukey_MT1Uchip1836\\240522_MT1Ukey_MT1Uchip1836\\chip\\24052203.bmp");
+	rawimg = imread("C:\\Image\\Pair Chip\\20240830 PN177 chips image\\3_I140.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -56,7 +56,8 @@ int main()
 		//{
 
 		//	std::cout << "check catch state:: " << boolflag << endl;
-
+	float outputLEDX[500];
+	float outputLEDY[500];
 
 		//}//catch loop
 
@@ -66,12 +67,12 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 300;
-		target.TDmaxW = 1.2;
+		target.TDwidth = 150;
+		target.TDmaxW = 1.5;
 		target.TDminW = 0.8;
 
-		target.TDheight = 150;
-		target.TDmaxH = 1.3;
+		target.TDheight = 270;
+		target.TDmaxH = 1.5;
 		target.TDminH = 0.7;
 
 		//thresParm = { 4,{200,107,107},{99999,99999,99999} ,{1,9,9}, {99999,99999,99999} }; //MTchip-G¡BB[0]
@@ -129,25 +130,38 @@ int main()
 			//creteriaPoint = Point2f(382,570); //dirt8280312
 
 			
+			thresParm.thresmode = 5;
+			thresParm.fgmax[0] = 0;
+			thresParm.bgmax[0] = 101;
 
-			
-			if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
-			{
-				std::cout << "start to dual phase detection...." << endl;
-				std::tie(boolflag, ReqIMG, crossCenter, marksize) = Uchip_dualphase(boolflag, cropedRImg, thresParm, chipsetting, target, creteriaPoint, IMGoffset, imageParm);
+			//thresParm.fgmin[0] = 0;
+			//thresParm.bgmin[0] = 190;
 
-			}
 
-			else
-			{
-				std::cout << "start to single phase detection...." << endl;			
-				//version3
+			//thresParm.thresmode = 0;
+			//thresParm.bgmin[0] = 190;
+			//thresParm.bgmax[0] = 255;
+
+			if (imageParm.Outputmode == 0)
+			{					
+				std::cout << "start to single phase detection...." << endl;
 				std::tie(boolflag, ReqIMG, crossCenter, marksize) = Uchip_singlephaseDownV3(boolflag, cropedRImg, thresParm, chipsetting, target, creteriaPoint, IMGoffset, imageParm);
 			}
+			else
+			{
+				vector<Point> vPt;
+				PairChip_Finder(boolflag, cropedRImg,ReqIMG,marksize, thresParm, chipsetting, target, crossCenter, IMGoffset, imageParm, vPt);
 
+				if (vPt.size() > 0)
+					for (int i = 1; i < sizeof(outputLEDX) / sizeof(outputLEDX[0]); i++)
+					{
+						if (i-1== vPt.size())
+							break;
+						outputLEDX[i] = vPt[i-1].x;
+						outputLEDY[i] = vPt[i-1].y;
+					}
 
-
-
+			}
 
 		}
 

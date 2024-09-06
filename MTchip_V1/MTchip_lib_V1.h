@@ -64,7 +64,9 @@ Mat RotatecorrectImg(double Rtheta, Mat src);
 
 
 
+void funcRotatePoint(vector<Point> vPt, vector<Point>& vPtOut, Mat& marksize, float correctTheta, Point IMGoffset);
 
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm, sizeTD_ target);
 
 /******Single- phase chip:::*******/
 //version 3
@@ -73,3 +75,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 /******Dual- phase hcip:::********/
 std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
+// P.S: Uchip_dualphase 功能已被 Uchip_singlephaseDownV3 完全取代
+
+
+void PairChip_Finder(int& flag, Mat imgInput, Mat& imgThres, Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point& creteriaPoint, Point IMGoffset, ImgP_ imageParm,vector<Point>& otherCenters);

@@ -105,45 +105,34 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		_target.TDwidth = target.TDwidth;
 
 
-		/*image with CROP  process :::*/
-		//Point piccenter;
-		//piccenter = find_piccenter(rawimg);
-		////std::cout << "pic center is ::" << piccenter.x << " , " << piccenter.y << endl;	
-		//IMGoffset.x = piccenter.x - int(imageParm.cols * 0.5);  //2736-600*0.5=2476
-		//IMGoffset.y = piccenter.y - int(imageParm.rows * 0.5);  //1824-600*0.5=1564
-		//Rect Cregion(IMGoffset.x, IMGoffset.y, imageParm.cols, imageParm.rows);
-		//cropedRImg = CropIMG(rawimg, Cregion);
-
-		///*///*image without CROP  process :::*/
-		//sizeParm.CsizeW = rawimg.size[0];
-		//sizeParm.CsizeH = sizeParm.CsizeW;
 		rawimg.copyTo(cropedRImg);
 
-		/*Rotate picture::: */
 		if (imageParm.correctTheta != 0)
-		{
 			cropedRImg = RotatecorrectImg(-1*imageParm.correctTheta, cropedRImg);
-		}
-		/*rotate end----------------*/
-
-
 
 		creteriaPoint = find_piccenter(cropedRImg);
 
 
-		//start to ISP//////////////////////////
-		if (thresParm.fgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999 && thresParm.thresmode == 0)
-		{
-			
-			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_dualphase(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
-
-		}
-
-		else
-		{
+		if (imageParm.Outputmode == 0)
+		{	
 			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
 		}
+		else
+		{
+			vector<Point> vPt;
+			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, crossCenter, IMGoffset, _imageParm,vPt);
 
+			if (vPt.size() > 0)
+				for (int i = 1; i < sizeof(outputLEDX) / sizeof(outputLEDX[0]); i++)
+				{
+					if (i - 1 == vPt.size())
+						break;
+					outputLEDX[i] = vPt[i - 1].x;
+					outputLEDY[i] = vPt[i - 1].y;
+				}
+
+
+		}
 		
 		
 	}
@@ -151,7 +140,8 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	std::cout << "check img state:: " << boolflag << endl;
 	std::cout << "check center is ::" << crossCenter << endl;
 
-	
+	if(!cropedRImg.empty())
+		cropedRImg.release();
 
 	/*  :::::::OUTPUT area:::::::  */
 	outputLEDX[0] = crossCenter.x ;

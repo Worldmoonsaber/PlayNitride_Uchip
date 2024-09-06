@@ -3,10 +3,8 @@
 
 std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm)
 {
-	auto t_start = std::chrono::high_resolution_clock::now();
-
-	//output parameters:::
 	Mat Reqcomthres = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
+	Point2f piccenter;
 	Point crossCenter;
 	Mat marksize;
 	Mat Rotmarkpic = Mat::ones(stIMG.rows, stIMG.cols, CV_8UC3);
@@ -18,7 +16,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	//Thres parameters:::
 	Mat Gimg, gauGimh;
 	Mat gauBGR;
-	vector<vector<Point>>  contH, contRot; 
+	vector<vector<Point>>  contH, contRot;
 	vector<Vec4i> hierH, hierRot;
 	vector<vector<Point>> reqConH;
 
@@ -28,79 +26,34 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	int adaptWsize = 3;
 	int adaptKsize = 2;
 
-	vector<vector<Point>>  contours, REQcont; 
+	vector<vector<Point>>  contours, REQcont;
 	Rect retCOMP;
 	vector<Rect> Rectlist;
 	vector<Point2f> center;
 	vector<double> distance;
-	Point2f piccenter;
 	int minIndex;
 	vector<Point> approx;
 	vector< double> approxList;
 	double areacomthres;
 
 
-	//Step.1  pre-processing to enhance contrast
-	stIMG.convertTo(stIMG, -1, 1.2, 0);
-	cv::GaussianBlur(stIMG, gauBGR, Size(0, 0), 13);
-	cv::addWeighted(stIMG, 1.5, gauBGR, -0.7, 0.0, stIMG); 
 
-	//Step.2  pre-processing of denoise
-	cv::cvtColor(stIMG, Gimg, COLOR_RGB2GRAY);
-	cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
 
-	//Step.3 threshold filtering
-	if (thresParm.thresmode == 0)
-	{
-		Scalar maxthres = Scalar(thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode]);
-		Scalar minthres = Scalar(thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode]);
-		cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
-		cv::medianBlur(HIGHthres, comthresIMG, 17);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
-	else if (thresParm.thresmode == 3)
-	{
-		if (thresParm.bgmax[imageParm.PICmode] & 1)
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode];
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		else
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
 
-		cv::medianBlur(adptThres, comthresIMG, 7);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
-	else if (thresParm.thresmode == 4)
-	{
-		if (thresParm.bgmax[imageParm.PICmode] & 1)
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode];
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		else
-		{
-			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
-			adaptKsize = thresParm.fgmax[imageParm.PICmode];
-		}
-		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
-		cv::medianBlur(adptThres, comthresIMG, 7);
-		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
-		cv::morphologyEx(comthresIMG, comthresIMG, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
-	}
 
+	auto t_start = std::chrono::high_resolution_clock::now();
+
+
+	// Step 1 & Step 2 & Step 3
+	funcThreshold(stIMG, comthresIMG, thresParm, imageParm, target);
+	//output parameters:::
 
 	//Step.4 Featurize pattern via dimension filtering
 	Mat finescanIMG = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
 	Rect drawrect;
 	Rect fineRect;
 	Point centerTD;
+
 
 	cv::findContours(comthresIMG, contH, hierH,
 		cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
@@ -255,20 +208,14 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 					if (imageParm.correctTheta != 0)
 					{
-						cv::circle(Rotnew,
-							(Point2i(crossCenter)), //coordinate
-							6, //radius
-							Scalar(180, 180, 180),  //color
-							FILLED,
-							LINE_AA);
-						Rotmarkpic = RotatecorrectImg(-1 * imageParm.correctTheta, Rotnew);
-						marksize = RotatecorrectImg(-1 * imageParm.correctTheta, marksize);
-						cv::inRange(Rotmarkpic, Scalar(175, 175, 175), Scalar(185, 185, 185), thresRot);
-						cv::findContours(thresRot, contRot, hierRot, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
-						Moments Mans = (moments(contRot[0], false));
-						crossCenternew = Point2i((Point2f((Mans.m10 / Mans.m00), (Mans.m01 / Mans.m00)))) + IMGoffset;
-						std::cout << "check chip crossCenternew is: [ " << crossCenternew << " ]" << endl;
-						std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+						vector<Point> vPt;
+						vPt.push_back(crossCenter);
+
+						vector<Point> vPtOut;
+						funcRotatePoint(vPt, vPtOut, marksize, imageParm.correctTheta, IMGoffset);
+
+						if (vPtOut.size() > 0)
+							crossCenternew = vPtOut[0];
 					}
 					else
 					{

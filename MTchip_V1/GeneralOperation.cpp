@@ -288,3 +288,165 @@ Mat RotatecorrectImg(double Rtheta, Mat src)
 	return patchrotaIMG;
 }
 
+void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imageParm, sizeTD_ target)
+{
+	ImgThres = Mat::zeros(ImgInput.rows, ImgInput.cols, CV_8UC1);
+	//Thres parameters:::
+	Mat Gimg, gauGimh;
+	Mat gauBGR;
+
+	Mat adptThres;
+	Mat HIGHthres;
+	int adaptWsize = 3;
+	int adaptKsize = 2;
+
+	//Step.1  pre-processing to enhance contrast
+	if (thresParm.thresmode == 0
+		|| thresParm.thresmode == 3
+		|| thresParm.thresmode == 4)
+	{
+		ImgInput.convertTo(ImgInput, -1, 1.2, 0);
+
+		cv::GaussianBlur(ImgInput, gauBGR, Size(0, 0), 13);
+		cv::addWeighted(ImgInput, 1.5, gauBGR, -0.7, 0.0, ImgInput);
+
+		//Step.2  pre-processing of denoise
+		cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
+		cv::fastNlMeansDenoising(Gimg, gauGimh, 3, 7, 21);
+	}
+	else
+	{
+		cv::cvtColor(ImgInput, Gimg, COLOR_RGB2GRAY);
+	}
+
+
+	//Step.3 threshold filtering
+	if (thresParm.thresmode == 0)
+	{
+		Scalar maxthres = Scalar(thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode], thresParm.fgmax[imageParm.PICmode]);
+		Scalar minthres = Scalar(thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode], thresParm.fgmin[imageParm.PICmode]);
+		cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
+		cv::medianBlur(HIGHthres, ImgThres, 17);
+
+		Size S_kermask, S_kernelLOW2, S_Kcomclose;
+
+		if (target.TDheight < target.TDwidth)
+		{
+			S_kermask = Size(10, 1);
+			S_kernelLOW2 = Size(1, 7);
+			S_Kcomclose = Size(10, 5);
+		}
+		else
+		{
+			S_kermask = Size(1, 10);
+			S_kernelLOW2 = Size(7, 1);
+			S_Kcomclose = Size(5, 10);
+		}
+
+		Mat Kcomclose = Mat::ones(S_Kcomclose, CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+
+
+		if (thresParm.bgmin[imageParm.PICmode] != 99999 && thresParm.bgmax[imageParm.PICmode] != 99999)
+		{
+			Scalar maxthres = Scalar(thresParm.bgmax[imageParm.PICmode], thresParm.bgmax[imageParm.PICmode], thresParm.bgmax[imageParm.PICmode]);
+			Scalar minthres = Scalar(thresParm.bgmin[imageParm.PICmode], thresParm.bgmin[imageParm.PICmode], thresParm.bgmin[imageParm.PICmode]);
+			cv::inRange(gauGimh, minthres, maxthres, HIGHthres);
+			cv::medianBlur(HIGHthres, HIGHthres, 17);
+			ImgThres = ImgThres + HIGHthres;
+			cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+		}
+
+
+
+	}
+	else if(thresParm.thresmode==3 || thresParm.thresmode == 4)
+	{
+		int nThresholdType = THRESH_BINARY_INV;
+
+		if (thresParm.thresmode == 4)
+			nThresholdType = THRESH_BINARY;
+
+		if (thresParm.bgmax[imageParm.PICmode] & 1)
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode];
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+		else
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+		adaptiveThreshold(gauGimh, adptThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, nThresholdType, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
+		cv::medianBlur(adptThres, ImgThres, 7);
+		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose, Point(-1, -1), 1);//1 //2
+		Kcomclose.release();
+	}
+	else // thresParm.thresmode==5 ¥H¤Î¨¾§b
+	{
+		Mat ImgThres2;
+		adaptiveThreshold(Gimg, ImgThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
+		adaptiveThreshold(Gimg, ImgThres2, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
+		//cv::medianBlur(adptThres, ImgThres, 7);
+		Mat Kcomopen = Mat::ones(Size(10, 10), CV_8UC1);  //Size(10,5)
+		Mat Kcomclose = Mat::ones(Size(5, 5), CV_8UC1);  //Size(10,5)
+
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_OPEN, Kcomopen, Point(-1, -1), 1);//1 //2
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomopen, Point(-1, -1), 1);//1 //2
+
+		cv::morphologyEx(ImgThres2, ImgThres2, cv::MORPH_OPEN, Kcomopen, Point(-1, -1), 1);//1 //2
+		cv::morphologyEx(ImgThres2, ImgThres2, cv::MORPH_CLOSE, Kcomopen, Point(-1, -1), 1);//1 //2
+
+		bitwise_or(ImgThres, ImgThres2, ImgThres);
+		Mat Kcomclose2 = Mat::ones(Size(3, 3), CV_8UC1);  //Size(10,5)
+		cv::morphologyEx(ImgThres, ImgThres, cv::MORPH_CLOSE, Kcomclose2, Point(-1, -1), 1);//1 //2
+
+		ImgThres2.release();
+		Kcomclose.release();
+		Kcomopen.release();
+		Kcomclose2.release();
+	}
+
+	gauBGR.release();
+	gauGimh.release();
+	Gimg.release();
+	HIGHthres.release();
+}
+
+void funcRotatePoint(vector<Point> vPt, vector<Point>& vPtOut,Mat& marksize,float correctTheta, Point IMGoffset)
+{
+	vector<vector<Point>>  contH, contRot;
+	vector<Vec4i> hierH, hierRot;
+	Mat thresRot;
+
+	Mat Rotmarkpic = Mat::ones(marksize.rows, marksize.cols, CV_8UC3);
+	Mat Rotnew = Mat::ones(marksize.rows, marksize.cols, CV_8UC3);
+
+	for (int i = 0; i < vPt.size(); i++)
+	{
+		cv::circle(Rotnew,
+			(vPt[i]), //coordinate
+			6, //radius
+			Scalar(180, 180, 180),  //color
+			FILLED,
+			LINE_AA);
+
+	}
+
+	Rotmarkpic = RotatecorrectImg(-1 * correctTheta, Rotnew);
+	marksize = RotatecorrectImg(-1 * correctTheta, marksize);
+	cv::inRange(Rotmarkpic, Scalar(175, 175, 175), Scalar(185, 185, 185), thresRot);
+	cv::findContours(thresRot, contRot, hierRot, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
+
+	for (int i = 0; i < contRot.size(); i++)
+	{
+		Moments Mans = (moments(contRot[0], false));
+		vPtOut.push_back(Point2i((Point2f((Mans.m10 / Mans.m00), (Mans.m01 / Mans.m00)))) + IMGoffset);
+	}
+
+	Rotmarkpic.release();
+	Rotnew.release();
+}
