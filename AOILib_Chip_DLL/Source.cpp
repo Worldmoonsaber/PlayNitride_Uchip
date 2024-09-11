@@ -30,7 +30,7 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	Point crossCenter;
 	int boolflag = 0;
 
-	Mat image_input(imageParm.rows, imageParm.cols, CV_8UC4, &imageIN[0]); // THIS IS THE INPUT IMAGE, POINTER TO DATA			
+	Mat image_input(4600, 5300, CV_8UC4, &imageIN[0]); // THIS IS THE INPUT IMAGE, POINTER TO DATA			
 	image_input.copyTo(rawimg);
 
 	Mat image_output(imageParm.rows, imageParm.cols, CV_8UC4, &imageOUT[0]);
@@ -103,9 +103,13 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		_target.TDminH = target.TDminH;
 		_target.TDminW = target.TDminW;
 		_target.TDwidth = target.TDwidth;
+	
+		cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, 750, boolflag, piccenter, IMGoffset);
 
+			
+		if (boolflag == 7)	
+			throw "Carry X,Y is unreasonable.";
 
-		rawimg.copyTo(cropedRImg);
 
 		if (imageParm.correctTheta != 0)
 			cropedRImg = RotatecorrectImg(-1*imageParm.correctTheta, cropedRImg);
@@ -115,7 +119,7 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 		if (imageParm.Outputmode == 0)
 		{	
-			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, creteriaPoint, IMGoffset, _imageParm);
+			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target,IMGoffset, _imageParm);
 		}
 		else
 		{

@@ -55,6 +55,7 @@ typedef struct
 Point find_piccenter(Mat src);
 Mat CropIMG(Mat img, Rect size);
 
+Mat CropImgFromChipSetting(Mat img, SettingP_ chipsetting, sizeTD_ target, ImgP_ imageParm, int tolerance, int& flag, Point& PicCenterOut, Point& ImgOffsetOut);
 
 int findBoundary(Mat creteriaIMG, Rect inirect, char direction);
 std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD_ target, Point TDcenter);
@@ -70,12 +71,7 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imagePa
 
 /******Single- phase chip:::*******/
 //version 3
-std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
-
-
-/******Dual- phase hcip:::********/
-std::tuple<int, Mat, Point, Mat>Uchip_dualphase(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm);
-// P.S: Uchip_dualphase 功能已被 Uchip_singlephaseDownV3 完全取代
+std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point IMGoffset, ImgP_ imageParm);
 
 
 void PairChip_Finder(int& flag, Mat imgInput, Mat& imgThres, Mat& imgOut, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point& creteriaPoint, Point IMGoffset, ImgP_ imageParm,vector<Point>& otherCenters);

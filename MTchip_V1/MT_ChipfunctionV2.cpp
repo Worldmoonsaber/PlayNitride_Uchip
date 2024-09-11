@@ -1,7 +1,7 @@
 #include "MTchip_lib_V1.h"
 
 
-std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point2f creteriaPoint, Point IMGoffset, ImgP_ imageParm)
+std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, Point IMGoffset, ImgP_ imageParm)
 {
 	Mat Reqcomthres = Mat::zeros(stIMG.rows, stIMG.cols, CV_8UC1);
 	Point2f piccenter;
@@ -61,6 +61,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 	cv::drawContours(Reqcomthres, contH, -1, Scalar(255, 255, 255), -1);
 	cv::drawContours(marksize, contH, -1, Scalar(200, 200, 200), 3);
 
+	piccenter = find_piccenter(comthresIMG);
 
 	try
 	{
@@ -92,8 +93,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 					{
 						Moments M = (moments(contH[i], false));
 						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						piccenter = find_piccenter(comthresIMG);
-						distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
+						distance.push_back(norm((piccenter)-center[center.size() - 1])); // get Euclidian distance
 						Rectlist.push_back(retCOMP);
 						approxList.push_back(approx.size());
 						REQcont.push_back(contH[i]);
@@ -121,8 +121,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 					{
 						Moments M = (moments(contH[i], false));
 						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						piccenter = find_piccenter(comthresIMG);
-						distance.push_back(norm((creteriaPoint)-center[center.size() - 1])); // get Euclidian distance
+						distance.push_back(norm((piccenter)-center[center.size() - 1])); // get Euclidian distance
 						Rectlist.push_back(retCOMP);
 						approxList.push_back(approx.size());
 						REQcont.push_back(contH[i]);
@@ -169,7 +168,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 					if (approxList[minIndex] == 4)
 					{
-						crossCenter = center[minIndex] + Point2f(chipsetting.carx, chipsetting.cary);
+						crossCenter = center[minIndex];// +Point2f(chipsetting.carx, chipsetting.cary);  CarryX CarryY 不使用
 						drawrect = Rect(Rectlist[minIndex].x,
 							Rectlist[minIndex].y, //rectangle ini y
 							Rectlist[minIndex].width, //rectangle width
@@ -185,7 +184,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 						tie(fineRect, centerTD) = FindMaxInnerRect(finescanIMG, stIMG, target, center[minIndex]);
 
-						crossCenter = Point2f(centerTD) + Point2f(chipsetting.carx, chipsetting.cary);
+						crossCenter = Point2f(centerTD);// +Point2f(chipsetting.carx, chipsetting.cary); CarryX CarryY 不使用
 						drawrect = fineRect;
 
 					}

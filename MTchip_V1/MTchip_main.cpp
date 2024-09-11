@@ -14,12 +14,12 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
+	imageParm.Outputmode = 2; //0:center coord ; 1: multiple mode
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 0; 
-	chipsetting.xpitch[0] = 150; 
-	chipsetting.carx = 0;
-	chipsetting.cary = 0;
+	chipsetting.xpitch[0] = 500; 
+	chipsetting.carx = 900;
+	chipsetting.cary = 3700;
 
 	//positive: counterclockwise   / negative:clockwise
 	imageParm.correctTheta = 0; 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Uchip\\20240910_121503.bmp");
+	rawimg = imread("C:\\Image\\Uchip\\LMLS\\8801_TEST.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -56,10 +56,11 @@ int main()
 		//{
 
 		//	std::cout << "check catch state:: " << boolflag << endl;
-	float outputLEDX[500];
-	float outputLEDY[500];
 
 		//}//catch loop
+
+	float outputLEDX[500];
+	float outputLEDY[500];
 
 		/////
 		//vector<float> sizelist;
@@ -67,11 +68,11 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 108;
+		target.TDwidth = 470;
 		target.TDmaxW = 1.5;
 		target.TDminW = 0.8;
 
-		target.TDheight = 240;
+		target.TDheight = 280;
 		target.TDmaxH = 1.5;
 		target.TDminH = 0.7;
 
@@ -90,26 +91,30 @@ int main()
 		/*create image::::*/
 		//CreateRotImg(rawimg, 8280402,-1*imageParm.correctTheta); //negative:counter-clockwise // positive:clockwise
 
-		thresParm.thresmode = 4;
+		thresParm.thresmode = 3;
 		thresParm.bgmax[0] = 400;
 		thresParm.fgmax[0] = 5;
-
+		
 
 		if (boolflag == 0)
 		{
 
-			Mat gauBGR, EnHBGR;
-			/*image with CROP  process :::*/
+			//if (chipsetting.carx==0 && chipsetting.cary == 0) //¨¾§b ¥H¨¾¸U¤@
+			//{
+			//	piccenter = find_piccenter(rawimg);
+			//	//std::cout << "pic center is ::" << piccenter.x << " , " << piccenter.y << endl;
+			//	IMGoffset.x = piccenter.x - int(imageParm.imgcols * 0.5);
+			//	IMGoffset.y = piccenter.y - int(imageParm.imgrows * 0.5);
+			//	Rect Cregion(IMGoffset.x, IMGoffset.y, imageParm.imgcols, imageParm.imgrows);
+			//	cropedRImg = CropIMG(rawimg, Cregion);
+			//}
+			//else
+			//{
+				cropedRImg = CropImgFromChipSetting(rawimg, chipsetting, target, imageParm,750, boolflag,piccenter,IMGoffset);
 
-		
-
-
-			piccenter = find_piccenter(rawimg);
-			//std::cout << "pic center is ::" << piccenter.x << " , " << piccenter.y << endl;
-			IMGoffset.x = piccenter.x - int(imageParm.imgcols * 0.5);
-			IMGoffset.y = piccenter.y - int(imageParm.imgrows * 0.5);
-			Rect Cregion(IMGoffset.x, IMGoffset.y, imageParm.imgcols, imageParm.imgrows);
-			cropedRImg = CropIMG(rawimg, Cregion);
+				if (boolflag==7)	
+					throw "Carry X,Y is unreasonable.";
+			//}
 
 
 
@@ -117,39 +122,13 @@ int main()
 			if (imageParm.correctTheta != 0)
 			{
 				cropedRImg = RotatecorrectImg(imageParm.correctTheta, cropedRImg);
-
 			}
 			/*rotate end----------------*/
-
-
-
-			///*///*image without CROP  process :::*/
-			//sizeParm.CsizeW = rawimg.size[0];
-			//sizeParm.CsizeH = sizeParm.CsizeW;
-			//rawimg.copyTo(cropedRImg);
-
-
-			//start to ISP-negative::
-			creteriaPoint = find_piccenter(cropedRImg); //dirt8280312
-			//creteriaPoint = Point2f(382,570); //dirt8280312
-
-			
-			//thresParm.thresmode = 5;
-			//thresParm.fgmax[0] = 0;
-			//thresParm.bgmax[0] = 101;
-
-			//thresParm.fgmin[0] = 0;
-			//thresParm.bgmin[0] = 190;
-
-
-			//thresParm.thresmode = 0;
-			//thresParm.bgmin[0] = 190;
-			//thresParm.bgmax[0] = 255;
 
 			if (imageParm.Outputmode == 0)
 			{					
 				std::cout << "start to single phase detection...." << endl;
-				std::tie(boolflag, ReqIMG, crossCenter, marksize) = Uchip_singlephaseDownV3(boolflag, cropedRImg, thresParm, chipsetting, target, creteriaPoint, IMGoffset, imageParm);
+				std::tie(boolflag, ReqIMG, crossCenter, marksize) = Uchip_singlephaseDownV3(boolflag, cropedRImg, thresParm, chipsetting, target, IMGoffset, imageParm);
 			}
 			else
 			{
@@ -172,9 +151,6 @@ int main()
 		std::cout << "check img state:: " << boolflag << endl;
 		std::cout << "check center is ::" << crossCenter << endl;
 	
-
-	
-
 	return 0;
 }
 

@@ -19,6 +19,27 @@ Mat CropIMG(Mat img, Rect size)
 
 }
 
+Mat CropImgFromChipSetting(Mat img, SettingP_ chipsetting, sizeTD_ target, ImgP_ imageParm,int tolerance, int& flag,Point& PicCenterOut,Point& ImgOffsetOut)
+{
+	PicCenterOut = Point(chipsetting.carx, chipsetting.cary);
+
+	//---是否超過影像範圍
+	if (chipsetting.carx < 750 && chipsetting.cary < 750)
+		flag = 7;
+
+	ImgOffsetOut.x = PicCenterOut.x - int(imageParm.imgcols * 0.5);
+	ImgOffsetOut.y = PicCenterOut.y - int(imageParm.imgrows * 0.5);
+
+	//---是否超過影像範圍
+	if (chipsetting.carx > img.cols- 750 && chipsetting.cary > img.rows-750)
+		flag = 7;
+
+	Rect Cregion(ImgOffsetOut.x, ImgOffsetOut.y, imageParm.imgcols, imageParm.imgrows);
+	
+	Mat CropImg = CropIMG(img, Cregion);
+	return CropImg;
+}
+
 int findBoundary(Mat creteriaIMG, Rect inirect, char direction)
 {
 	int step = 1;

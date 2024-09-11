@@ -343,7 +343,7 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 		FindOtherPairs(vContour_Filtered, min_rect, ptC, target, imgOut, vPtChipPair);
 #pragma endregion
 
-	cv::Point ptCarr= min_rect.center+ Point2f(chipsetting.carx, chipsetting.cary);
+	cv::Point ptCarr = min_rect.center;// +Point2f(chipsetting.carx, chipsetting.cary);
 
 	std::sort(vPtChipPair.begin(), vPtChipPair.end(), [ptC](cv::Point a, cv::Point b)
 		{
@@ -352,11 +352,11 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 			return norm(af - ptC) < norm(bf - ptC);
 		});
 
-	for(int i=0;i< vPtChipPair.size();i++)
-		vPtChipPair[i]= vPtChipPair[i]+ Point2f(chipsetting.carx, chipsetting.cary);
+	for (int i = 0; i < vPtChipPair.size(); i++)
+		vPtChipPair[i] = vPtChipPair[i];// +Point2f(chipsetting.carx, chipsetting.cary);
 	
 	//影像中心
-	cv::circle(imgOut, ptC + Point2f(chipsetting.carx, chipsetting.cary), 9, cv::Scalar(0, 255, 255), FILLED, LINE_AA);
+	cv::circle(imgOut, ptC , 9, cv::Scalar(0, 255, 255), FILLED, LINE_AA);
 
 	cv::line(imgOut, cv::Point(0, ptCarr.y), cv::Point(imgOut.size[1], ptCarr.y), cv::Scalar(255, 255, 255), 1, 8);
 	cv::line(imgOut, cv::Point(ptCarr.x, 0), cv::Point(ptCarr.x, imgOut.size[0]), cv::Scalar(255, 255, 255), 1, 8);
