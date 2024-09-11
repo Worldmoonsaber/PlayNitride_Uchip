@@ -150,13 +150,11 @@
     <ClInclude Include="..\MTchip_V1\MTchip_lib_V1.h" />
     <ClInclude Include="AOILib_MTUchip_V1.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="AOILib_Chip_DLL.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\MTchip_V1\GeneralOperation.cpp" />
-    <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV1_.cpp" />
     <ClCompile Include="..\MTchip_V1\MT_ChipfunctionV2.cpp" />
     <ClCompile Include="..\MTchip_V1\PairChip_Finder.cpp" />
     <ClCompile Include="dllmain.cpp" />
