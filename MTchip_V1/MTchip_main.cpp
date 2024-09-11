@@ -14,7 +14,7 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 2; //0:center coord ; 1: multiple mode
+	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 0; 
 	chipsetting.xpitch[0] = 150; 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Pair Chip\\20240830 PN177 chips image\\3_I140.bmp");
+	rawimg = imread("C:\\Image\\Uchip\\20240910_121503.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -67,11 +67,11 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 150;
+		target.TDwidth = 108;
 		target.TDmaxW = 1.5;
 		target.TDminW = 0.8;
 
-		target.TDheight = 270;
+		target.TDheight = 240;
 		target.TDmaxH = 1.5;
 		target.TDminH = 0.7;
 
@@ -89,6 +89,10 @@ int main()
 		//thresParm = { 3,{189,107,107},{99999,99999,99999} ,{3,9,9}, {99999,99999,99999} };//MTchip-LM01P119
 		/*create image::::*/
 		//CreateRotImg(rawimg, 8280402,-1*imageParm.correctTheta); //negative:counter-clockwise // positive:clockwise
+
+		thresParm.thresmode = 4;
+		thresParm.bgmax[0] = 400;
+		thresParm.fgmax[0] = 5;
 
 
 		if (boolflag == 0)
@@ -130,9 +134,9 @@ int main()
 			//creteriaPoint = Point2f(382,570); //dirt8280312
 
 			
-			thresParm.thresmode = 5;
-			thresParm.fgmax[0] = 0;
-			thresParm.bgmax[0] = 101;
+			//thresParm.thresmode = 5;
+			//thresParm.fgmax[0] = 0;
+			//thresParm.bgmax[0] = 101;
 
 			//thresParm.fgmin[0] = 0;
 			//thresParm.bgmin[0] = 190;
