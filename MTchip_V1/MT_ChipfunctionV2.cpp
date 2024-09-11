@@ -59,6 +59,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 		cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
 
 	cv::drawContours(Reqcomthres, contH, -1, Scalar(255, 255, 255), -1);
+	cv::drawContours(marksize, contH, -1, Scalar(200, 200, 200), 3);
 
 
 	try
@@ -97,8 +98,7 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 						approxList.push_back(approx.size());
 						REQcont.push_back(contH[i]);
 						cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-						cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
+						//cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
 
 					}
 
