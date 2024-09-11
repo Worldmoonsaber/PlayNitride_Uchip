@@ -24,9 +24,6 @@
     <ClCompile Include="GeneralOperation.cpp">
       <Filter>資源檔</Filter>
     </ClCompile>
-    <ClCompile Include="MT_ChipfunctionV1_.cpp">
-      <Filter>資源檔</Filter>
-    </ClCompile>
     <ClCompile Include="MT_ChipfunctionV2.cpp">
       <Filter>資源檔</Filter>
     </ClCompile>
