@@ -14,12 +14,12 @@ int main()
 	imageParm.imgcols = 1500; //800 ;900-1600
 	imageParm.imgrows = 1500;
 
-	imageParm.Outputmode = 2; //0:center coord ; 1: multiple mode
+	imageParm.Outputmode = 0; //0:center coord ; 1: multiple mode
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 0; 
 	chipsetting.xpitch[0] = 500; 
 	chipsetting.carx = 900;
-	chipsetting.cary = 3700;
+	chipsetting.cary = 3800;
 
 	//positive: counterclockwise   / negative:clockwise
 	imageParm.correctTheta = 0; 
@@ -94,29 +94,12 @@ int main()
 		thresParm.thresmode = 3;
 		thresParm.bgmax[0] = 400;
 		thresParm.fgmax[0] = 5;
-		
+
+		cropedRImg = CropImgFromChipSetting(rawimg, chipsetting, target, imageParm, boolflag, piccenter, IMGoffset);
+
 
 		if (boolflag == 0)
 		{
-
-			//if (chipsetting.carx==0 && chipsetting.cary == 0) //¨¾§b ¥H¨¾¸U¤@
-			//{
-			//	piccenter = find_piccenter(rawimg);
-			//	//std::cout << "pic center is ::" << piccenter.x << " , " << piccenter.y << endl;
-			//	IMGoffset.x = piccenter.x - int(imageParm.imgcols * 0.5);
-			//	IMGoffset.y = piccenter.y - int(imageParm.imgrows * 0.5);
-			//	Rect Cregion(IMGoffset.x, IMGoffset.y, imageParm.imgcols, imageParm.imgrows);
-			//	cropedRImg = CropIMG(rawimg, Cregion);
-			//}
-			//else
-			//{
-				cropedRImg = CropImgFromChipSetting(rawimg, chipsetting, target, imageParm,750, boolflag,piccenter,IMGoffset);
-
-				if (boolflag==7)	
-					throw "Carry X,Y is unreasonable.";
-			//}
-
-
 
 			/*Rotate picture::: */
 			if (imageParm.correctTheta != 0)

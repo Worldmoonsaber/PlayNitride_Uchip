@@ -55,7 +55,7 @@ typedef struct
 Point find_piccenter(Mat src);
 Mat CropIMG(Mat img, Rect size);
 
-Mat CropImgFromChipSetting(Mat img, SettingP_ chipsetting, sizeTD_ target, ImgP_ imageParm, int tolerance, int& flag, Point& PicCenterOut, Point& ImgOffsetOut);
+Mat CropImgFromChipSetting(Mat img, SettingP_ chipsetting, sizeTD_ target, ImgP_ imageParm, int& flag, Point& PicCenterOut, Point& ImgOffsetOut);
 
 int findBoundary(Mat creteriaIMG, Rect inirect, char direction);
 std::tuple<Rect, Point>FindMaxInnerRect(Mat src, Mat colorSRC, sizeTD_ target, Point TDcenter);

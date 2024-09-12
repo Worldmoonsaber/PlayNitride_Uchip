@@ -12,19 +12,19 @@
 
 #pragma region Main
 void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, sizeTD target, unsigned int* imageIN,
-					unsigned int* imageOUT, unsigned char* imageGray, float boolResult[], float outputLEDX[], float outputLEDY[])
+	unsigned int* imageOUT, unsigned char* imageGray, float boolResult[], float outputLEDX[], float outputLEDY[])
 {
 
-	
+
 	Mat rawimg, cropedRImg, gauBGR;
 	Mat Gimg, drawF2;
 
 	Point piccenter;
 	Point2f creteriaPoint;
-	Point IMGoffset=Point(0,0);
+	Point IMGoffset = Point(0, 0);
 
-	
-	
+
+
 
 	//output parameters::
 	Point crossCenter;
@@ -53,78 +53,68 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 	}//catch loop
 
-	
+	thresP_ _thresParm;
+
+
+	_thresParm.thresmode = thresParm.thresmode;
+
+	for (int i = 0; i < 3; i++)
+	{
+		_thresParm.bgmax[i] = thresParm.bgmax[i];
+		_thresParm.bgmin[i] = thresParm.bgmin[i];
+		_thresParm.fgmax[i] = thresParm.fgmax[i];
+		_thresParm.fgmin[i] = thresParm.fgmin[i];
+	}
+
+	ImgP_ _imageParm;
+
+	_imageParm.correctTheta = imageParm.correctTheta;
+	_imageParm.imgcols = imageParm.cols;
+	_imageParm.imgrows = imageParm.rows;
+	_imageParm.Outputmode = imageParm.Outputmode;
+	_imageParm.PICmode = imageParm.PICmode;
+
+	SettingP_ _chipsetting;
+
+	_chipsetting.carx = chipsetting.carx;
+	_chipsetting.cary = chipsetting.cary;
+
+	for (int i = 0; i < 4; i++)
+		_chipsetting.interval[i] = chipsetting.interval[i];
+
+	for (int i = 0; i < 3; i++)
+	{
+		_chipsetting.xpitch[i] = chipsetting.xpitch[i];
+		_chipsetting.ypitch[i] = chipsetting.ypitch[i];
+	}
+
+
+	sizeTD_ _target;
+
+	_target.TDheight = target.TDheight;
+	_target.TDmaxH = target.TDmaxH;
+	_target.TDmaxW = target.TDmaxW;
+	_target.TDminH = target.TDminH;
+	_target.TDminW = target.TDminW;
+	_target.TDwidth = target.TDwidth;
+
+	cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
 
 	if (boolflag == 0) //&& imageParm.Outputmode == 0
 	{
-
-
-		thresP_ _thresParm;
-
-
-		_thresParm.thresmode = thresParm.thresmode;
-
-		for (int i = 0; i < 3; i++)
-		{
-			_thresParm.bgmax[i] = thresParm.bgmax[i];
-			_thresParm.bgmin[i] = thresParm.bgmin[i];
-			_thresParm.fgmax[i] = thresParm.fgmax[i];
-			_thresParm.fgmin[i] = thresParm.fgmin[i];
-		}
-
-		ImgP_ _imageParm;
-
-		_imageParm.correctTheta = imageParm.correctTheta;
-		_imageParm.imgcols = imageParm.cols;
-		_imageParm.imgrows = imageParm.rows;
-		_imageParm.Outputmode = imageParm.Outputmode;
-		_imageParm.PICmode = imageParm.PICmode;
-
-		SettingP_ _chipsetting;
-
-		_chipsetting.carx = chipsetting.carx;
-		_chipsetting.cary = chipsetting.cary;
-
-		for (int i = 0; i < 4; i++)
-			_chipsetting.interval[i] = chipsetting.interval[i];
-
-		for (int i = 0; i < 3; i++)
-		{
-			_chipsetting.xpitch[i] = chipsetting.xpitch[i];
-			_chipsetting.ypitch[i] = chipsetting.ypitch[i];
-		}
-
-
-		sizeTD_ _target;
-
-		_target.TDheight = target.TDheight;
-		_target.TDmaxH = target.TDmaxH;
-		_target.TDmaxW = target.TDmaxW;
-		_target.TDminH = target.TDminH;
-		_target.TDminW = target.TDminW;
-		_target.TDwidth = target.TDwidth;
-	
-		cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, 750, boolflag, piccenter, IMGoffset);
-
-			
-		if (boolflag == 7)	
-			throw "Carry X,Y is unreasonable.";
-
-
 		if (imageParm.correctTheta != 0)
-			cropedRImg = RotatecorrectImg(-1*imageParm.correctTheta, cropedRImg);
+			cropedRImg = RotatecorrectImg(-1 * imageParm.correctTheta, cropedRImg);
 
 		creteriaPoint = find_piccenter(cropedRImg);
 
-
 		if (imageParm.Outputmode == 0)
-		{	
-			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target,IMGoffset, _imageParm);
+		{
+			std::tie(boolflag, Gimg, crossCenter, drawF2) = Uchip_singlephaseDownV3(boolflag, cropedRImg, _thresParm, _chipsetting, _target, IMGoffset, _imageParm);
 		}
 		else
 		{
 			vector<Point> vPt;
-			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, crossCenter, IMGoffset, _imageParm,vPt);
+			PairChip_Finder(boolflag, cropedRImg, Gimg, drawF2, _thresParm, _chipsetting, _target, crossCenter, IMGoffset, _imageParm, vPt);
 
 			if (vPt.size() > 0)
 				for (int i = 1; i < sizeof(outputLEDX) / sizeof(outputLEDX[0]); i++)
@@ -137,19 +127,18 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 
 		}
-		
-		
+
 	}
 
 	std::cout << "check img state:: " << boolflag << endl;
 	std::cout << "check center is ::" << crossCenter << endl;
 
-	if(!cropedRImg.empty())
+	if (!cropedRImg.empty())
 		cropedRImg.release();
 
 	/*  :::::::OUTPUT area:::::::  */
-	outputLEDX[0] = crossCenter.x ;
-	outputLEDY[0] = crossCenter.y ;
+	outputLEDX[0] = crossCenter.x;
+	outputLEDY[0] = crossCenter.y;
 	Gimg.copyTo(thres_output);
 	drawF2.copyTo(image_output);
 	boolResult[0] = boolflag;
