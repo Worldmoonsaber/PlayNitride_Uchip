@@ -74,66 +74,31 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 
 		else
 		{
-			if (thresParm.thresmode == 3 || 4)
+			for (int i = 0; i < contH.size(); i++)
 			{
 
+				retCOMP = cv::boundingRect(contH[i]);
+				areacomthres = cv::contourArea(contH[i]);
+				cv::approxPolyDP(contH[i], approx, 15, true);
+				if (retCOMP.width > target.TDwidth * target.TDminW
+					&& retCOMP.height > target.TDheight * target.TDminH
+					&& retCOMP.width < target.TDwidth * target.TDmaxW
+					&& retCOMP.height < target.TDheight * target.TDmaxH
+					)
 
-				for (int i = 0; i < contH.size(); i++)
 				{
+					Moments M = (moments(contH[i], false));
+					center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
+					distance.push_back(norm((piccenter)-center[center.size() - 1])); // get Euclidian distance
+					Rectlist.push_back(retCOMP);
+					approxList.push_back(approx.size());
+					REQcont.push_back(contH[i]);
+					cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
+					//cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
 
-					retCOMP = cv::boundingRect(contH[i]);
-					areacomthres = cv::contourArea(contH[i]);
-					cv::approxPolyDP(contH[i], approx, 15, true); 
-					if (retCOMP.width > target.TDwidth * target.TDminW
-						&& retCOMP.height > target.TDheight * target.TDminH
-						&& retCOMP.width < target.TDwidth * target.TDmaxW
-						&& retCOMP.height < target.TDheight * target.TDmaxH
-						)
+				}
 
-					{
-						Moments M = (moments(contH[i], false));
-						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						distance.push_back(norm((piccenter)-center[center.size() - 1])); // get Euclidian distance
-						Rectlist.push_back(retCOMP);
-						approxList.push_back(approx.size());
-						REQcont.push_back(contH[i]);
-						cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-						//cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
-					}
-
-				} //for-loop: contours
-
-
-
-			}//if-loop: (thresParm.thresmode == 3 || 4)
-
-			else //(thresParm.thresmode == 0 || 1|| 2)
-			{
-				for (int i = 0; i < contH.size(); i++)
-				{
-
-					retCOMP = cv::boundingRect(contH[i]);
-					areacomthres = cv::contourArea(contH[i]);
-					cv::approxPolyDP(contH[i], approx, 15, true); 
-					if (areacomthres > target.TDwidth * target.TDminW * target.TDheight * target.TDminH && areacomthres < target.TDwidth * target.TDmaxW * target.TDheight * target.TDmaxH)
-
-					{
-						Moments M = (moments(contH[i], false));
-						center.push_back((Point2f((M.m10 / M.m00), (M.m01 / M.m00))));
-						distance.push_back(norm((piccenter)-center[center.size() - 1])); // get Euclidian distance
-						Rectlist.push_back(retCOMP);
-						approxList.push_back(approx.size());
-						REQcont.push_back(contH[i]);
-						cv::rectangle(marksize, retCOMP, Scalar(255, 255, 255), 4);
-						cv::rectangle(Reqcomthres, retCOMP, Scalar(255, 255, 255), -1);
-
-
-					}
-
-				} //for-loop: contours
-			} //if-loop: (thresParm.thresmode == 0 || 1|| 2)
-
+			} //for-loop: contours
 
 			//draw pic center:: 
 			cv::circle(marksize,
