@@ -387,8 +387,21 @@ void funcThreshold(Mat ImgInput, Mat& ImgThres, thresP_ thresParm, ImgP_ imagePa
 	else // thresParm.thresmode==5 ¥H¤Î¨¾§b
 	{
 		Mat ImgThres2;
-		adaptiveThreshold(Gimg, ImgThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
-		adaptiveThreshold(Gimg, ImgThres2, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 91, 0);//55,1 //ADAPTIVE_THRESH_MEAN_C
+
+		if (thresParm.bgmax[imageParm.PICmode] & 1)
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode];
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+		else
+		{
+			adaptWsize = thresParm.bgmax[imageParm.PICmode] + 1;
+			adaptKsize = thresParm.fgmax[imageParm.PICmode];
+		}
+
+
+		adaptiveThreshold(Gimg, ImgThres, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
+		adaptiveThreshold(Gimg, ImgThres2, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, adaptWsize, adaptKsize);//55,1 //ADAPTIVE_THRESH_MEAN_C
 
 		//cv::medianBlur(adptThres, ImgThres, 7);
 		Mat Kcomopen = Mat::ones(Size(10, 10), CV_8UC1);  //Size(10,5)

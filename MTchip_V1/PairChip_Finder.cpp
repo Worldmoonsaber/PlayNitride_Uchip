@@ -268,11 +268,22 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 	}
 
 	vector<tuple<Point2f, vector<cv::Point>>> vContour_Filtered;
+
 	//--依照條件過濾
 
 	for (int i = 0; i < contH.size(); i++)
 	{
 		Rect retCOMP = cv::boundingRect(contH[i]);
+		float areacomthres = cv::contourArea(contH[i]);
+
+		if (retCOMP.area() < target.TDwidth * target.TDminW * target.TDheight * target.TDminH)
+			continue;
+
+		float rectangularity = areacomthres / retCOMP.area();
+
+		if (rectangularity < 0.5)
+			continue;
+
 
 		if (retCOMP.width > target.TDwidth * target.TDminW
 			&& retCOMP.height > target.TDheight * target.TDminH
@@ -282,7 +293,7 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 		{
 			Moments M = (moments(contH[i], false));
 			tuple<Point2f, vector<cv::Point>> obj(Point2f((M.m10 / M.m00), (M.m01 / M.m00)), contH[i]);
-			rectangle(imgThres, retCOMP, cv::Scalar(255, 255, 255), cv::FILLED);
+			//rectangle(imgThres, retCOMP, cv::Scalar(255, 255, 255), 3);
 			rectangle(imgOut, retCOMP, cv::Scalar(255, 255, 255), 5);
 
 			vContour_Filtered.push_back(obj);
@@ -295,6 +306,8 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 		flag = 2;
 		throw "something wrong::potential object doesn't fit suitable dimension";
 	}
+
+	drawContours(imgOut, contH, -1, Scalar(200, 200, 200), 3);
 
 	//----DebugImg
 	Mat Debug = Mat::zeros(imgInput.rows, imgInput.cols, CV_8UC1);
