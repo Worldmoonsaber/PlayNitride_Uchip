@@ -3,10 +3,10 @@
 #include "AOILib_MTUchip_V1.h"
 
 
-#include<opencv2/opencv.hpp>
-#include<opencv2/highgui/highgui.hpp>
-#include<opencv2/imgproc/imgproc.hpp> //mophorlogical operation
-#include<opencv2/core.hpp>
+//#include<opencv2/opencv.hpp>
+//#include<opencv2/highgui/highgui.hpp>
+//#include<opencv2/imgproc/imgproc.hpp> //mophorlogical operation
+//#include<opencv2/core.hpp>
 #include "../MTchip_V1/MTchip_lib_V1.h"
 
 
@@ -26,12 +26,25 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	Point crossCenter;
 	int boolflag = 0;
 
-	Mat image_input(4600, 5300, CV_8UC4, &imageIN[0]); // THIS IS THE INPUT IMAGE, POINTER TO DATA			
+	Mat image_input(4600, 5320, CV_8UC4, &imageIN[0]); // THIS IS THE INPUT IMAGE, POINTER TO DATA			
 	image_input.copyTo(rawimg);
-
+	//imwrite("Test.bmp", image_input);
 	Mat image_output(imageParm.rows, imageParm.cols, CV_8UC4, &imageOUT[0]);
 	Mat thres_output(imageParm.rows, imageParm.cols, CV_8UC1, &imageGray[0]);
 
+
+	outputLEDX[0] = imageParm.cols;
+	outputLEDY[0] = imageParm.rows;
+
+	//cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
+
+	//cropedRImg.copyTo(image_input);
+
+	boolResult[0] = 81;
+
+
+	return;
+	
 	try
 	{
 		if (rawimg.empty())
@@ -72,8 +85,13 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 	SettingP_ _chipsetting;
 
-	_chipsetting.carx = chipsetting.carx;
-	_chipsetting.cary = chipsetting.cary;
+	//_chipsetting.carx = chipsetting.carx-(2660- _imageParm.imgcols/2);
+	//_chipsetting.cary = chipsetting.cary - (2300 - _imageParm.imgrows / 2);
+
+
+
+
+
 
 	for (int i = 0; i < 4; i++)
 		_chipsetting.interval[i] = chipsetting.interval[i];
@@ -94,7 +112,25 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	_target.TDminW = target.TDminW;
 	_target.TDwidth = target.TDwidth;
 
-	cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
+
+	boolflag = 0;
+
+	outputLEDX[0] = _imageParm.imgcols;
+	outputLEDY[0] = _imageParm.imgrows;
+
+	//cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
+
+	//cropedRImg.copyTo(image_input);
+	
+	boolResult[0] = boolflag;
+
+
+
+	Gimg.copyTo(thres_output);
+	cropedRImg.copyTo(image_output);
+
+	return;
+
 
 	if (boolflag == 0) //&& imageParm.Outputmode == 0
 	{
