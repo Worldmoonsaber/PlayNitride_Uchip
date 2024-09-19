@@ -273,6 +273,15 @@ void PairChip_Finder(int& flag, Mat imgInput,Mat& imgThres,Mat& imgOut, thresP_ 
 	for (int i = 0; i < contH.size(); i++)
 	{
 		Rect retCOMP = cv::boundingRect(contH[i]);
+		float areacomthres = cv::contourArea(contH[i]);
+
+		if (retCOMP.area() < target.TDwidth * target.TDminW * target.TDheight * target.TDminH)
+			continue;
+
+		float rectangularity = areacomthres / retCOMP.area();
+
+		if (rectangularity < 0.5)
+			continue;
 
 		if (retCOMP.width > target.TDwidth * target.TDminW
 			&& retCOMP.height > target.TDheight * target.TDminH

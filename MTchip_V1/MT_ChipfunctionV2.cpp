@@ -76,10 +76,19 @@ std::tuple<int, Mat, Point, Mat>Uchip_singlephaseDownV3(int flag, Mat stIMG, thr
 		{
 			for (int i = 0; i < contH.size(); i++)
 			{
-
 				retCOMP = cv::boundingRect(contH[i]);
 				areacomthres = cv::contourArea(contH[i]);
+
+				if (retCOMP.area() < target.TDwidth * target.TDminW * target.TDheight * target.TDminH)
+					continue;
+
+				float rectangularity = areacomthres / retCOMP.area();
+
+				if (rectangularity < 0.5)
+					continue;
+
 				cv::approxPolyDP(contH[i], approx, 15, true);
+
 				if (retCOMP.width > target.TDwidth * target.TDminW
 					&& retCOMP.height > target.TDheight * target.TDminH
 					&& retCOMP.width < target.TDwidth * target.TDmaxW

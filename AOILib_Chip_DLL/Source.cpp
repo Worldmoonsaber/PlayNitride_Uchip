@@ -15,16 +15,12 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	unsigned int* imageOUT, unsigned char* imageGray, float boolResult[], float outputLEDX[], float outputLEDY[])
 {
 
-
 	Mat rawimg, cropedRImg, gauBGR;
 	Mat Gimg, drawF2;
 
 	Point piccenter;
 	Point2f creteriaPoint;
 	Point IMGoffset = Point(0, 0);
-
-
-
 
 	//output parameters::
 	Point crossCenter;
