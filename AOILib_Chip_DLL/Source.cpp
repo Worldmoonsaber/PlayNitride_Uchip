@@ -25,26 +25,14 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	//output parameters::
 	Point crossCenter;
 	int boolflag = 0;
+	boolResult[0] = boolflag;
 
 	Mat image_input(4600, 5320, CV_8UC4, &imageIN[0]); // THIS IS THE INPUT IMAGE, POINTER TO DATA			
-	image_input.copyTo(rawimg);
-	//imwrite("Test.bmp", image_input);
+	rawimg = image_input.clone();
+
 	Mat image_output(imageParm.rows, imageParm.cols, CV_8UC4, &imageOUT[0]);
 	Mat thres_output(imageParm.rows, imageParm.cols, CV_8UC1, &imageGray[0]);
 
-
-	outputLEDX[0] = imageParm.cols;
-	outputLEDY[0] = imageParm.rows;
-
-	//cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
-
-	//cropedRImg.copyTo(image_input);
-
-	boolResult[0] = 81;
-
-
-	return;
-	
 	try
 	{
 		if (rawimg.empty())
@@ -53,6 +41,7 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 			throw "something wrong::input image failure";
 		} //check if image is empty
 
+		rawimg.release();
 	} //try loop
 	catch (const char* message)
 	{
@@ -61,6 +50,7 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 
 	}//catch loop
+	boolflag = 0;
 
 	thresP_ _thresParm;
 
@@ -85,13 +75,8 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 
 	SettingP_ _chipsetting;
 
-	//_chipsetting.carx = chipsetting.carx-(2660- _imageParm.imgcols/2);
-	//_chipsetting.cary = chipsetting.cary - (2300 - _imageParm.imgrows / 2);
-
-
-
-
-
+	_chipsetting.carx = chipsetting.carx;
+	_chipsetting.cary = chipsetting.cary;
 
 	for (int i = 0; i < 4; i++)
 		_chipsetting.interval[i] = chipsetting.interval[i];
@@ -112,24 +97,7 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	_target.TDminW = target.TDminW;
 	_target.TDwidth = target.TDwidth;
 
-
-	boolflag = 0;
-
-	outputLEDX[0] = _imageParm.imgcols;
-	outputLEDY[0] = _imageParm.imgrows;
-
-	//cropedRImg = CropImgFromChipSetting(rawimg, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
-
-	//cropedRImg.copyTo(image_input);
-	
-	boolResult[0] = boolflag;
-
-
-
-	Gimg.copyTo(thres_output);
-	cropedRImg.copyTo(image_output);
-
-	return;
+	cropedRImg = CropImgFromChipSetting(image_input, _chipsetting, _target, _imageParm, boolflag, piccenter, IMGoffset);
 
 
 	if (boolflag == 0) //&& imageParm.Outputmode == 0
@@ -137,7 +105,6 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 		if (imageParm.correctTheta != 0)
 			cropedRImg = RotatecorrectImg(-1 * imageParm.correctTheta, cropedRImg);
 
-		creteriaPoint = find_piccenter(cropedRImg);
 
 		if (imageParm.Outputmode == 0)
 		{
@@ -157,10 +124,10 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 					outputLEDY[i] = vPt[i - 1].y;
 				}
 
-
 		}
 
 	}
+
 
 	std::cout << "check img state:: " << boolflag << endl;
 	std::cout << "check center is ::" << crossCenter << endl;
@@ -171,8 +138,12 @@ void MTUchip_calcenter(thresP thresParm, ImgP imageParm, SettingP chipsetting, s
 	/*  :::::::OUTPUT area:::::::  */
 	outputLEDX[0] = crossCenter.x;
 	outputLEDY[0] = crossCenter.y;
+
+
 	Gimg.copyTo(thres_output);
 	drawF2.copyTo(image_output);
+
+
 	boolResult[0] = boolflag;
 }
 

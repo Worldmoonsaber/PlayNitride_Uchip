@@ -18,8 +18,8 @@ int main()
 	imageParm.PICmode = 0;  
 	chipsetting.interval[0] = 0; 
 	chipsetting.xpitch[0] = 500; 
-	chipsetting.carx = 900;
-	chipsetting.cary = 3800;
+	chipsetting.carx = 3800;
+	chipsetting.cary = 2000;
 
 	//positive: counterclockwise   / negative:clockwise
 	imageParm.correctTheta = 0; 
@@ -39,7 +39,7 @@ int main()
 
 	//operating mode
 	//C:\Image\Uchip\MT1\240522_MT1Ukey_MT1Uchip1836\240522_MT1Ukey_MT1Uchip1836\chip
-	rawimg = imread("C:\\Image\\Uchip\\LMLS\\8801_TEST.bmp");
+	rawimg = imread("C:\\Image\\4X4\\1836\\183607.bmp");
 
 		// Image source input: IMG format:RGB
 		//try
@@ -68,11 +68,11 @@ int main()
 
 		//std::tie(sizelist, threslist) = dict_rectregion(picorder);
 
-		target.TDwidth = 470;
+		target.TDwidth = 350;
 		target.TDmaxW = 1.5;
 		target.TDminW = 0.8;
 
-		target.TDheight = 280;
+		target.TDheight = 180;
 		target.TDmaxH = 1.5;
 		target.TDminH = 0.7;
 
@@ -92,7 +92,7 @@ int main()
 		//CreateRotImg(rawimg, 8280402,-1*imageParm.correctTheta); //negative:counter-clockwise // positive:clockwise
 
 		thresParm.thresmode = 3;
-		thresParm.bgmax[0] = 400;
+		thresParm.bgmax[0] = 200;
 		thresParm.fgmax[0] = 5;
 
 		cropedRImg = CropImgFromChipSetting(rawimg, chipsetting, target, imageParm, boolflag, piccenter, IMGoffset);

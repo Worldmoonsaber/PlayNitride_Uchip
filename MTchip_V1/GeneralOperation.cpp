@@ -36,7 +36,7 @@ Mat CropImgFromChipSetting(Mat img, SettingP_ chipsetting, sizeTD_ target, ImgP_
 	ImgOffsetOut.y = PicCenterOut.y - int(imageParm.imgrows * 0.5);
 
 	//---是否超過影像範圍
-	if (chipsetting.carx > img.cols- xTolerance || chipsetting.cary > img.rows- yTolerance)
+	if (chipsetting.carx > 5320- xTolerance || chipsetting.cary > 4600- yTolerance)
 		flag = 7;
 
 	if (flag != 7)
